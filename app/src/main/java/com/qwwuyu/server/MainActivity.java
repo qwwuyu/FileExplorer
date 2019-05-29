@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +36,10 @@ public class MainActivity extends Activity {
                 case WHAT_CHANGES:
                     setIP();
                     break;
+                case 101:
+                    if (!isStart) start();
+                    if (!isStart) handler.sendEmptyMessageDelayed(101, 1000L);
+                    break;
             }
             return true;
         }
@@ -44,18 +49,26 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a_main);
-        txt_server = (TextView) findViewById(R.id.txt_server);
-        (btn = (TextView) findViewById(R.id.btn)).setOnClickListener(new View.OnClickListener() {
+        txt_server = findViewById(R.id.txt_server);
+        (btn = findViewById(R.id.btn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isStart) stop();
                 else start();
             }
         });
+
+        WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (!wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(true);
+        }
+        this.handler.sendEmptyMessageDelayed(101, 2000L);
+
         IntentFilter filters = new IntentFilter();
         filters.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         filters.addAction("android.hardware.usb.action.USB_STATE");
         registerReceiver(networkReceiver, filters);
+        start();
     }
 
     private void start() {

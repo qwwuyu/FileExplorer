@@ -26,6 +26,7 @@
             android:id="@+id/btn"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:text="Start"/>
+            android:text="Start"
+            android:textAllCaps="false"/>
     </LinearLayout>
 </RelativeLayout>
