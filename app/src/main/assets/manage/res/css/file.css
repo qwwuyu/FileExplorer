@@ -1,0 +1,124 @@
+/*---------- default ---------*/
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    background: #FFF;
+    color: #333;
+}
+
+body {
+    font-size: 12px;
+    font-family: "Microsoft YaHei", Verdana, Arial, Helvetica, Tahoma, serif;
+}
+
+h1, h2, h3, h4, h5, h6, ul, li {
+    list-style-type: none;
+}
+
+input, select, button, textarea {
+    font-size: 14px;
+    font-family: "Microsoft YaHei", Verdana, Arial, Helvetica, Tahoma, serif;
+    vertical-align: middle;
+}
+
+img {
+    border: none;
+}
+
+a, a:link, a:visited, a:hover, a:active {
+    text-decoration: none;
+}
+
+/*---------- content ---------*/
+.flex-center {
+    display: flex;
+    align-items: center;
+}
+
+.ion-icon {
+    font-size: 20px;
+    width: 20px;
+    margin-left: 12px;
+    color: #333
+}
+
+.dir-ctrl {
+    margin-left: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.file-folder, #back, #deleteDir {
+    cursor: pointer;
+}
+
+.file-folder:hover, #back:hover, #deleteDir:hover {
+    background: #F7F7F7;
+}
+
+.file-text {
+    padding: 0 6px;
+    font-size: 15px;
+}
+
+.file-text-folder {
+    color: #50BEFF;
+}
+
+.file-text-file {
+    color: #333;
+}
+
+.file-ctrl {
+    height: 24px;
+}
+
+.file-open, .file-download, .file-delete {
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.file-open, .file-download {
+    margin-left: 12px;
+    color: #2d64b3;
+}
+
+.file-delete {
+    color: #909090;
+    margin-left: 24px;
+}
+
+/*---------- alert ---------*/
+.alert-list {
+    position: fixed;
+    top: 44px;
+    right: 24px;
+    z-index: 1000;
+}
+
+.alert-list-succ {
+    position: fixed;
+    top: 44px;
+    left: 24px;
+    z-index: 1000;
+}
+
+.alert {
+    margin-bottom: 12px;
+    padding: 12px 24px;
+    width: 160px;
+    font-size: 14px;
+    color: #007bff;
+    background-color: #e6f3ff;
+    box-shadow: 0 1px 1px 0 hsla(0, 0%, 80%, .5);
+    border: 1px solid #b3d0ef;
+    border-radius: 2px;
+    cursor: default;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

@@ -1,23 +1,72 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion configs.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.qwwuyu.server"
-        minSdkVersion 15
-        targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        applicationId "com.qwwuyu.file"
+        minSdkVersion configs.minSdkVersion
+        targetSdkVersion configs.targetSdkVersion
+        versionCode configs.versionCode
+        versionName configs.versionName
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+    if (signInfo.isSign) {
+        signingConfigs {
+            sign {
+                storeFile file(signInfo.storeFile)
+                storePassword signInfo.storePassword
+                keyAlias signInfo.keyAlias
+                keyPassword signInfo.keyPassword
+            }
         }
+    }
+
+    buildTypes {
+        debug {
+            if (signInfo.isSign) signingConfig signingConfigs.sign
+            versionNameSuffix ".debug"
+            zipAlignEnabled false
+            shrinkResources false
+            minifyEnabled false
+            proguardFiles 'proguard-rules.pro'
+            aaptOptions.cruncherEnabled = false
+
+            buildConfigField "boolean", "TEST", "$configs.test"
+        }
+
+        release {
+            if (signInfo.isSign) signingConfig signingConfigs.sign
+            zipAlignEnabled true
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles 'proguard-rules.pro'
+
+            buildConfigField "boolean", "TEST", "false"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lintOptions {
+        abortOnError false
+        disable 'MissingTranslation'
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation "${versions.junit}"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "${versions.appcompat}"
+    implementation "${versions.annotation}"
+    implementation "${versions.constraintlayout}"
+
+    api "com.google.code.gson:gson:2.8.5"
 }

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+    <title>video</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <link href="/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
+    <link href="/tres/css/video-js.min.css" type="text/css" rel="stylesheet" media="screen"/>
+    <script src="/tres/js/jquery-3.2.1.min.js"></script>
+    <script src="/tres/js/video.min.js"></script>
+    <script src="/tres/js/video-zh.js"></script>
+    <script src="/tres/js/videojs-flash.min.js"></script>
+    <!--<script type="application/javascript">
+        videojs('my-player', {techOrder: ['flash', 'html5']});
+    </script>-->
+    <script src="/res/js/util.js"></script>
+</head>
+<body>
+<div style="width: 800px; margin: 0 auto;">
+    <video-js controls="controls"
+              width="800"
+              height="600"
+              data-setup='{"language":"zh-CN"}'>
+        <!--type="video/mp4"-->
+        <source id="video-source"/>
+    </video-js>
+</div>
+<script type="application/javascript">
+    var src = location.pathname.replace("open", "download") + location.search;
+    $('#video-source').attr("src", src);
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+    <title>card</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <link href="/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
+    <link href="/tres/css/ionicons.min.css" type="text/css" rel="stylesheet" media="screen"/>
+
+    <link href="/res/css/file.css" type="text/css" rel="stylesheet" media="screen"/>
+    <script src="/tres/js/jquery-3.2.1.min.js"></script>
+    <script src="/tres/js/jquery.ui.widget.js"></script>
+    <script src="/tres/js/jquery.iframe-transport.js"></script>
+    <script src="/tres/js/jquery.fileupload.js"></script>
+    <script src="/tres/js/template-web.js"></script>
+    <script src="/res/js/util.js"></script>
+</head>
+<body>
+<button style="display :block; width:80px; height:24px; margin-left: 8px; margin-top: 8px;"
+        onclick="document.getElementById('fileupload').click()">上传文件
+</button>
+<input type="file" id="fileupload" multiple="multiple" style="display: none;">
+<span id="progress" style="display: flex; margin-left: 8px; margin-top: 8px; font-size: 14px;">progress</span>
+<span id="result" style="display: flex; margin-left: 8px; margin-top: 8px; font-size: 14px;">result</span>
+<span style="display: flex; height: 8px;"></span>
+<div style="height: 1px; width: 100%; background-color: #ccc;"></div>
+<div style="display: flex;">
+    <span id="back" class="dir-ctrl" style="color: #007bff;">返回上一级</span>
+    <span id="dir" class="dir-ctrl" style="color: #333;">全部文件</span>
+    <span id="deleteDir" class="dir-ctrl" style="color: #909090;">删除</span>
+</div>
+
+<div style="height: 1px; width: 100%; background-color: #ccc;"></div>
+<div class="content"></div>
+<div class="alert-list"></div>
+<div class="alert-list-succ"></div>
+<script src="/res/js/file.js"></script>
+</body>
+</html>
