@@ -1,6 +1,7 @@
-package com.qwwuyu.file.server;
+package com.qwwuyu.file.nano;
 
-import com.qwwuyu.file.utils.FileUtils;
+import com.qwwuyu.file.utils.CommUtils;
+import com.qwwuyu.file.helper.FileHelper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +21,7 @@ public class TempFileManagerImpl implements NanoHTTPD.TempFileManagerFactory {
         private final List<NanoHTTPD.TempFile> tempFiles = new ArrayList<>();
 
         public MyFileManager() {
-            this.dir = new File(FileUtils.getInstance().getCachePath());
+            this.dir = new File(FileHelper.getInstance().getCachePath());
         }
 
         @Override
@@ -47,7 +48,7 @@ public class TempFileManagerImpl implements NanoHTTPD.TempFileManagerFactory {
         private final OutputStream stream;
 
         public MyTempFile(File dir, String filename) throws IOException {
-            if (filename == null) file = File.createTempFile("server-", "", dir);
+            if (filename == null) file = File.createTempFile("FileManageTemp", "", dir);
             else file = new File(dir, filename);
             if (filename != null && file.exists()) throw new IOException(filename + ":exist, not cover.");
             stream = new FileOutputStream(this.file);
@@ -55,7 +56,7 @@ public class TempFileManagerImpl implements NanoHTTPD.TempFileManagerFactory {
 
         @Override
         public void delete() throws Exception {
-            FileUtils.safeClose(stream);
+            CommUtils.closeStream(stream);
             if (!this.file.delete()) {
                 throw new Exception("could not delete temporary file");
             }

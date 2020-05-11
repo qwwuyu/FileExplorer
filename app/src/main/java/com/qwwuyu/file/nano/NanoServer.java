@@ -1,0 +1,98 @@
+package com.qwwuyu.file.nano;
+
+import android.content.Context;
+
+import com.google.gson.Gson;
+import com.qwwuyu.file.config.Constant;
+import com.qwwuyu.file.entity.FileBean;
+import com.qwwuyu.file.entity.ResponseBean;
+import com.qwwuyu.file.utils.AppUtils;
+import com.qwwuyu.file.helper.FileHelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public class NanoServer extends NanoHTTPD {
+    private final String[] url = new String[]{".html", ".css", ".js"};
+    private final String[] types = new String[]{"text/html", "text/css", "text/javascript"};
+    private Context context;
+
+    public NanoServer(Context context, int port) {
+        super(port);
+        this.context = context;
+    }
+
+    @Override
+    public Response serve(IHTTPSession session) {
+        try {
+            String uri = "/".equals(session.getUri()) ? "/index.html" : session.getUri();
+            if (uri.startsWith("/i/")) {
+                String path = session.getParms().get("path");
+                if (path == null) path = "/";
+                if (!path.startsWith("/")) path = "/" + path;
+                switch (uri) {
+                    case Constant.URL_QUERY:
+                        List<FileBean> list = FileHelper.getDirectoryFile(path);
+                        ResponseBean responseBean = AppUtils.getSuccessBean().setData(list);
+                        return callback(session, new Gson().toJson(responseBean));
+                    case Constant.URL_DEL:
+                        return callback(session, new Gson().toJson(FileHelper.delFile(path)));
+                    case Constant.URL_DEL_DIR:
+                        return callback(session, new Gson().toJson(FileHelper.delDir(path)));
+                    case Constant.URL_DOWNLOAD: {
+                        return download(path, true);
+                    }
+                    case Constant.URL_OPEN: {
+                        return download(path, false);
+                    }
+                    case Constant.UPL_UPLOAD: {
+                        File file = FileHelper.file(path);
+                        Map<String, String> map = new LinkedHashMap<>();
+                        session.parseBody(map, file);
+                        return txt(new Gson().toJson(map));
+                    }
+                }
+            }
+
+            try {
+                InputStream is = context.getAssets().open("manage" + uri);
+                String mimeType = "text/plain";
+                for (int i = 0; i < url.length; i++) {
+                    if (uri.endsWith(url[i])) mimeType = types[i];
+                }
+                return newFixedLengthResponse(Response.Status.OK, mimeType, is, 0);
+            } catch (Exception e) {
+                return html("访问路径无效");
+            }
+        } catch (Exception e) {
+            return html("操作失败：" + e.getMessage());
+        }
+    }
+
+    private Response callback(IHTTPSession session, String body) {
+        String callback = session.getParms().get("callback");
+        return txt(callback == null ? body : session.getParms().get("callback") + "(" + body + ")");
+    }
+
+    private Response txt(String body) {
+        return newFixedLengthResponse(Response.Status.OK, "application/json", body);
+    }
+
+    private Response html(String body) {
+        return newFixedLengthResponse(Response.Status.OK, NanoHTTPD.MIME_HTML, "<html><body><h1>" + body + "</h1></body></html>");
+    }
+
+    private Response download(String path, boolean download) throws Exception {
+        File file = FileHelper.file(path);
+        String fileName = file.getName();
+        Response response = newFixedLengthResponse(Response.Status.OK, download ? "application/octet-stream" : null, new FileInputStream(file), file.length());
+        response.addHeader("Content-Disposition", (download ? "attachment" : "inline")
+                + "; filename=\"" + URLEncoder.encode(fileName, "utf-8") + "\"");
+        return response;
+    }
+}

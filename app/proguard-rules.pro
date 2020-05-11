@@ -97,4 +97,5 @@
     @androidx.annotation.Keep <init>(...);
 }
 ################### 以上固定 package:com.qwwuyu.file
-# package todo
+# package
+-keep class com.qwwuyu.file.entity.** { <fields>; }

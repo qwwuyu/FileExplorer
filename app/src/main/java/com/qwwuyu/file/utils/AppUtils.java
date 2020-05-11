@@ -1,8 +1,11 @@
 package com.qwwuyu.file.utils;
 
+import com.qwwuyu.file.WApplication;
+import com.qwwuyu.file.config.Constant;
 import com.qwwuyu.file.entity.FileBean;
 import com.qwwuyu.file.entity.NetBean;
 import com.qwwuyu.file.entity.NetType;
+import com.qwwuyu.file.entity.ResponseBean;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -11,7 +14,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.annotation.ColorRes;
+
 public class AppUtils {
+    public static ResponseBean getSuccessBean() {
+        return new ResponseBean(Constant.HTTP_SUC, "请求成功", null);
+    }
+
+    public static ResponseBean getErrorBean() {
+        return new ResponseBean(Constant.HTTP_ERR, "请求失败", null);
+    }
+
     public static ArrayList<NetBean> getCtrlIp() {
         ArrayList<NetBean> beans = new ArrayList<>();
         try {
@@ -55,10 +68,14 @@ public class AppUtils {
 
             @Override
             public int compare(FileBean lhs, FileBean rhs) {
-                if (lhs.isDirectory() && !rhs.isDirectory()) return i;
-                if (!lhs.isDirectory() && rhs.isDirectory()) return j;
-                return lhs.getName().compareTo(rhs.getName());
+                if (lhs.dir && !rhs.dir) return i;
+                if (!lhs.dir && rhs.dir) return j;
+                return lhs.name.compareTo(rhs.name);
             }
         });
+    }
+
+    public static int getColor(@ColorRes int res) {
+        return WApplication.context.getResources().getColor(res);
     }
 }

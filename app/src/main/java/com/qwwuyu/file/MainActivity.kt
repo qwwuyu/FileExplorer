@@ -10,23 +10,26 @@ import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.qwwuyu.file.server.NanoServer
-import com.qwwuyu.file.server.TempFileManagerImpl
+import com.qwwuyu.file.config.Constant
+import com.qwwuyu.file.config.ManageConfig
+import com.qwwuyu.file.helper.FileHelper
+import com.qwwuyu.file.helper.KeepServer
+import com.qwwuyu.file.nano.NanoServer
+import com.qwwuyu.file.nano.TempFileManagerImpl
 import com.qwwuyu.file.utils.AppUtils
-import com.qwwuyu.file.utils.FileUtils
+import com.qwwuyu.file.utils.LogUtils
+import com.qwwuyu.file.utils.SystemBarUtil
 import com.qwwuyu.file.utils.ToastUtil
 import com.qwwuyu.file.utils.permit.PermitUtil
 import com.qwwuyu.file.utils.permit.SPermitCtrl
+import kotlinx.android.synthetic.main.a_main.*
 
+@SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
-    private lateinit var tvServer: TextView
-    private lateinit var btn: TextView
-
     private var server: NanoServer? = null
     private var isStart = false
-    private var port = 0
+    private var openPort = 0
 
     private var networkReceiver: BroadcastReceiver? = null
     private val whatChange = 100
@@ -47,9 +50,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intent?.let {
+            if (intent.getBooleanExtra(Constant.INTENT_CLOSE, false)) {
+                stop()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.a_main)
+        tvVersion.text = "v${BuildConfig.VERSION_NAME}"
+        SystemBarUtil.setStatusBarColor(this, AppUtils.getColor(R.color.white))
+        SystemBarUtil.setStatusBarDarkMode(this, true)
         PermitUtil.request(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
             object : SPermitCtrl() {
                 override fun onGranted() {
@@ -74,15 +89,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init() {
-        tvServer = findViewById(R.id.txt_server)
-        btn = findViewById(R.id.btn)
-        btn.setOnClickListener {
+        btnCtrl.setOnClickListener {
             if (isStart) {
                 stop()
             } else {
                 start()
             }
         }
+        cbCtrl1.isChecked = ManageConfig.instance.isShowPointFile()
+        cbCtrl1.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setShowPointFile(isChecked) }
 
         val wifiManager = this.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         if (!wifiManager.isWifiEnabled) {
@@ -105,53 +120,58 @@ class MainActivity : AppCompatActivity() {
 
     private fun start() {
         val ips = AppUtils.getCtrlIp()
-        if (toast("请开启Wifi、热点、USB共享网络之一", ips.size == 0)) return
-        if (toast("SD卡不存在或无法访问", !FileUtils.getInstance().isCreate)) return
+        if (error("请开启Wifi、热点、USB共享网络之一", ips.isEmpty())) return
+        if (error("储存卡不存在或无法访问", !FileHelper.getInstance().checkCreate())) return
+        server?.stop()
         var port = 1764
         while (port < 1767) {
             try {
                 server = NanoServer(this@MainActivity, port)
-                server!!.start()
                 server!!.tempFileManagerFactory = TempFileManagerImpl()
+                server!!.start()
                 break
-            } catch (ignored: Exception) {
+            } catch (e: Exception) {
+                LogUtils.logError(e)
             }
             port++
         }
-        if (toast("服务开启失败", port == 1767)) return
+        if (error("管理服务开启失败，端口被占用", port == 1767)) return
         isStart = true
-        this.port = port
+        openPort = port
         setIP()
+        KeepServer.start()
     }
 
     private fun stop() {
         server?.stop()
+        server = null
         isStart = false
-        tvServer.text = "服务已关闭"
-        tvServer.setTextColor(0xff0000ff.toInt())
-        btn.text = "开启"
-    }
-
-    fun toast(text: String?, bl: Boolean): Boolean {
-        if (bl) {
-            tvServer.text = text
-            tvServer.setTextColor(0xffff0000.toInt())
-        }
-        return bl
+        tvMessage.text = "管理服务已关闭"
+        tvMessage.setTextColor(AppUtils.getColor(R.color.message_normal))
+        btnCtrl.text = "开启"
+        KeepServer.stop()
     }
 
     private fun setIP() {
-        if (isStart) {
-            val ips = AppUtils.getCtrlIp()
-            var text = ""
-            for (bean in ips) text = "$text${bean.toString(port)}" + "\n"
-            if ("" != text) {
-                tvServer.text = text.substring(0, text.length - 1)
-            } else {
-                tvServer.text = "请开启Wifi、热点、USB共享网络之一"
-            }
-            tvServer.setTextColor(0xff00ff00.toInt())
-            btn.text = "关闭"
+        if (!isStart) return
+        val ips = AppUtils.getCtrlIp()
+        var text = ""
+        for (bean in ips) text = "$text${bean.toString(openPort)}" + "\n"
+        if ("" != text) {
+            tvMessage.text = text.substring(0, text.length - 1)
+            tvMessage.setTextColor(AppUtils.getColor(R.color.message_normal))
+        } else {
+            tvMessage.text = "请开启Wifi、热点、USB共享网络之一"
+            tvMessage.setTextColor(AppUtils.getColor(R.color.message_error))
         }
+        btnCtrl.text = "关闭"
+    }
+
+    fun error(text: String?, show: Boolean): Boolean {
+        if (show) {
+            tvMessage.text = text
+            tvMessage.setTextColor(AppUtils.getColor(R.color.message_error))
+        }
+        return show
     }
 }

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,20 +15,58 @@
         android:padding="5dp">
 
         <TextView
-            android:id="@+id/txt_server"
+            android:id="@+id/tvMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="15dp"
+            android:layout_marginRight="8dp"
             android:layout_weight="1"
-            android:text="服务已关闭"
-            android:textColor="#ff0000ff"
-            android:textSize="16sp"/>
+            android:text="管理服务已关闭"
+            android:textColor="@color/message_normal"
+            android:textSize="16sp" />
 
         <Button
-            android:id="@+id/btn"
+            android:id="@+id/btnCtrl"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:text="开启"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false" />
     </LinearLayout>
-</RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbCtrl1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="显示以“.”开头的文件和目录" />
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/tvDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:textColor="@color/message_normal"
+        android:textSize="14sp"
+        tools:text="V1.1.1" />
+
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="8dp"
+        android:textColor="@color/message_normal"
+        android:textSize="14sp"
+        tools:text="V1.1.1" />
+</LinearLayout>

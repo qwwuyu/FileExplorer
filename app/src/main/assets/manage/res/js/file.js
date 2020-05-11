@@ -26,10 +26,10 @@ $(document).ready(function () {
         initUpload(path);
         return false;
     }).on('click', '.file-delete', function (e) {
-        var oldPath = getParam("path");
         var name = $(this).data("name");
-        var path = oldPath + ("" != oldPath ? "/" : "") + name;
         if (confirm("你确认要删除文件：" + name + "?")) {
+            var oldPath = getParam("path");
+            var path = oldPath + ("" != oldPath ? "/" : "") + name;
             deleteFile(path, $(this))
         }
     }).on('click', '#back', function (e) {
@@ -37,19 +37,15 @@ $(document).ready(function () {
         goBack(oldPath)
     }).on('click', '#deleteDir', function (e) {
         var oldPath = getParam("path");
-        if ("" != oldPath && confirm("你确认要删除目录：" + oldPath + "?")) {
+        if ("" != oldPath && confirm("你确认要删除目录：" + decodeURI(oldPath) + "?")) {
             deleteDir(oldPath)
         }
     });
 });
 
 function requestFile(path) {
-    L(location.pathname)
     var request = $.ajax({
-        url: location.pathname + "query",
-        data: {
-            "path": path
-        },
+        url: location.pathname + "i/query?path=" + path,
         beforeSend: function () {
         },
         complete: function () {
@@ -77,8 +73,8 @@ function handFileData(list) {
     var temp_file = template('temp_file', {
         datas: list,
         dirPath: location.pathname + "?path=" + oldPath,
-        downloadPath: location.pathname + "/download?path=" + oldPath,
-        openPath: location.pathname + "/open?path=" + oldPath
+        downloadPath: location.pathname + "i/download?path=" + oldPath,
+        openPath: location.pathname + "i/open?path=" + oldPath
     });
     $('.content').html(temp_file);
     setDeleteDir();
@@ -99,15 +95,12 @@ function initUpload(path) {
         $("#dir").text("全部文件");
     } else {
         $("#back").show();
-        $("#dir").text(path);
+        $("#dir").text(decodeURI(path));
     }
     requestFile(path);
     //初始化上传插件
     $('#fileupload').fileupload({
-        url: location.pathname + '/upload',
-        formData: {
-            "path": getParam("path")
-        },
+        url: location.pathname + "i/upload?path=" + getParam("path"),
         dataType: 'text',
         progressall: function (e, data) {
             $('#progress').text(data.loaded + "/" + data.total);
@@ -117,12 +110,12 @@ function initUpload(path) {
             $("#result").show();
         },
         done: function (e, data) {
-            $('#result').text("done:" + data.result);
+            $('#result').text("上传结果:" + data.result);
             var path = getParam("path");
             requestFile(path);
         },
         fail: function (e, data) {
-            $('#result').text("fail:" + data.result);
+            $('#result').text("上传失败:" + data.result);
         }
     });
 }
@@ -130,10 +123,7 @@ function initUpload(path) {
 function deleteFile(path, obj) {
     var params = getRequest();
     var request = $.ajax({
-        url: location.pathname + "/delete",
-        data: {
-            "path": path
-        },
+        url: location.pathname + "i/del?path=" + path,
         beforeSend: function () {
         },
         complete: function () {
@@ -155,10 +145,7 @@ function deleteFile(path, obj) {
 function deleteDir(path) {
     var params = getRequest();
     var request = $.ajax({
-        url: location.pathname + "/deleteDir",
-        data: {
-            "path": path
-        },
+        url: location.pathname + "i/delDir?path=" + path,
         beforeSend: function () {
         },
         complete: function () {

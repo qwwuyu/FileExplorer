@@ -1,4 +1,4 @@
-package com.qwwuyu.file.server;
+package com.qwwuyu.file.nano;
 
 /*
  * #%L
@@ -33,8 +33,8 @@ package com.qwwuyu.file.server;
  * #L%
  */
 
-import com.qwwuyu.file.server.NanoHTTPD.Response.IStatus;
-import com.qwwuyu.file.server.NanoHTTPD.Response.Status;
+import com.qwwuyu.file.nano.NanoHTTPD.Response.IStatus;
+import com.qwwuyu.file.nano.NanoHTTPD.Response.Status;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
