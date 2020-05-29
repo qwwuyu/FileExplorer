@@ -63,4 +63,5 @@
     <color name="def_item_bg_white">#11ffffff</color>
     <color name="def_item_bg">#ffffff</color>
     <color name="def_item_bg_pressed">#d9d9d9</color>
+    <color name="item_click_gray">#DEE0E2</color>
 </resources>

@@ -22,4 +22,6 @@ object Constant {
 
     /* ======================== SP ======================== */
     const val SP_SHOW_POINT_FILE = "SP_SHOW_POINT_FILE"
+    const val SP_TXT_ENCODING = "SP_TXT_ENCODING"
+    const val SP_AUTO_WIFI = "SP_AUTO_WIFI"
 }

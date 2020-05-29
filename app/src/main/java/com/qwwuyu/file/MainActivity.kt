@@ -43,7 +43,6 @@ class MainActivity : AppCompatActivity() {
                 whatAutoStart -> {
                     if (!isStart) {
                         start()
-                        sendEmptyMessageDelayed(whatAutoStart, 1000L)
                     }
                 }
             }
@@ -62,7 +61,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.a_main)
+        cbShowPoint.isChecked = ManageConfig.instance.isShowPointFile()
+        cbShowPoint.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setShowPointFile(isChecked) }
+        cbAutoWifi.isChecked = ManageConfig.instance.isAutoWifi()
+        cbAutoWifi.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setAutoWifi(isChecked) }
         tvVersion.text = "v${BuildConfig.VERSION_NAME}"
+        tvEncoding.text = "txt预览编码方式：" + ManageConfig.instance.getTxtEncoding()
+        btnEncoding.setOnClickListener {
+            ManageConfig.instance.checkTxtEncoding()
+            tvEncoding.text = "txt预览编码方式：" + ManageConfig.instance.getTxtEncoding()
+        }
+
         SystemBarUtil.setStatusBarColor(this, AppUtils.getColor(R.color.white))
         SystemBarUtil.setStatusBarDarkMode(this, true)
         PermitUtil.request(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -96,13 +105,18 @@ class MainActivity : AppCompatActivity() {
                 start()
             }
         }
-        cbCtrl1.isChecked = ManageConfig.instance.isShowPointFile()
-        cbCtrl1.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setShowPointFile(isChecked) }
 
-        val wifiManager = this.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        if (!wifiManager.isWifiEnabled) {
-            wifiManager.isWifiEnabled = true
-            handler.sendEmptyMessageDelayed(101, 2000L)
+        if (ManageConfig.instance.isAutoWifi()) {
+            try {
+                val wifiManager = this.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                if (!wifiManager.isWifiEnabled) {
+                    wifiManager.isWifiEnabled = true
+                    handler.sendEmptyMessageDelayed(whatAutoStart, 2000L)
+                    handler.sendEmptyMessageDelayed(whatAutoStart, 4000L)
+                    handler.sendEmptyMessageDelayed(whatAutoStart, 6000L)
+                }
+            } catch (e: Exception) {
+            }
         }
 
         networkReceiver = object : BroadcastReceiver() {
@@ -122,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         val ips = AppUtils.getCtrlIp()
         if (error("请开启Wifi、热点、USB共享网络之一", ips.isEmpty())) return
         if (error("储存卡不存在或无法访问", !FileHelper.getInstance().checkCreate())) return
+        handler.removeMessages(whatChange)
         server?.stop()
         var port = 1764
         while (port < 1767) {

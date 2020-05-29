@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.qwwuyu.file.config.Constant;
+import com.qwwuyu.file.config.ManageConfig;
 import com.qwwuyu.file.entity.FileBean;
 import com.qwwuyu.file.entity.FileResultEntity;
 import com.qwwuyu.file.entity.ResponseBean;
@@ -97,6 +98,9 @@ public class NanoServer extends NanoHTTPD {
         Response response = newFixedLengthResponse(Response.Status.OK, download ? "application/octet-stream" : null, new FileInputStream(file), file.length());
         response.addHeader("Content-Disposition", (download ? "attachment" : "inline")
                 + "; filename=\"" + URLEncoder.encode(fileName, "utf-8") + "\"");
+        if (fileName.endsWith(".txt")) {
+            response.addHeader("Content-Type", "text/plain; charset=" + ManageConfig.Companion.getInstance().getTxtEncoding());
+        }
         return response;
     }
 }
