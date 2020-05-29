@@ -40,16 +40,18 @@ $(document).ready(function () {
         if ("" != oldPath && confirm("你确认要删除目录：" + decodeURI(oldPath) + "?")) {
             deleteDir(oldPath)
         }
+    }).on('click', '#newDir', function (e) {
+        var word = prompt("输入文件夹名称");
+        if (word && "" != word) {
+            var path = getParam("path");
+            newDir(word, path)
+        }
     });
 });
 
 function requestFile(path) {
     var request = $.ajax({
-        url: location.pathname + "i/query?path=" + path,
-        beforeSend: function () {
-        },
-        complete: function () {
-        }
+        url: location.pathname + "i/query?path=" + path
     });
     request.then(function (data) {
         if (1 == data.state) {
@@ -106,28 +108,27 @@ function initUpload(path) {
             $('#progress').text(data.loaded + "/" + data.total);
         },
         start: function (e) {
+            $("#result").text("");
             $("#progress").show();
             $("#result").show();
         },
         done: function (e, data) {
-            $('#result').text("上传结果:" + data.result);
+            $('#result').text($('#result').text() + "done>>" + data.result + "\n");
+        },
+        fail: function (e, data) {
+            $('#result').text($('#result').text() + "fail>>" + data.result + "\n");
+        },
+        stop: function (e) {
             var path = getParam("path");
             requestFile(path);
         },
-        fail: function (e, data) {
-            $('#result').text("上传失败:" + data.result);
-        }
     });
 }
 
 function deleteFile(path, obj) {
     var params = getRequest();
     var request = $.ajax({
-        url: location.pathname + "i/del?path=" + path,
-        beforeSend: function () {
-        },
-        complete: function () {
-        }
+        url: location.pathname + "i/del?path=" + path
     });
     request.then(function (data) {
         if (1 == data.state) {
@@ -145,16 +146,30 @@ function deleteFile(path, obj) {
 function deleteDir(path) {
     var params = getRequest();
     var request = $.ajax({
-        url: location.pathname + "i/delDir?path=" + path,
-        beforeSend: function () {
-        },
-        complete: function () {
-        }
+        url: location.pathname + "i/delDir?path=" + path
     });
     request.then(function (data) {
         if (1 == data.state) {
             showSucc("删除成功");
             goBack(path)
+        } else if (data.info) {
+            showErr(data.info);
+        }
+    }, function (jqXHR, textStatus, errorThrown) {
+        handErr(textStatus);
+    });
+}
+
+function newDir(dirName, path) {
+    var params = getRequest();
+    var request = $.ajax({
+        url: location.pathname + "i/createDir?path=" + path + "&dirName=" + dirName,
+    });
+    request.then(function (data) {
+        if (1 == data.state) {
+            showSucc("创建成功");
+            var path = getParam("path");
+            requestFile(path);
         } else if (data.info) {
             showErr(data.info);
         }

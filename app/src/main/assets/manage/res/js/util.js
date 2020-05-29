@@ -116,7 +116,7 @@ function showSucc(err, time) {
     $('.alert-list-succ').append(alertTxt);
     setTimeout(function () {
         alertTxt.remove();
-    }, 'number' == typeof (time) ? time : 3000);
+    }, 'number' == typeof (time) ? time : 1500);
 }
 
 // 获取认证信息

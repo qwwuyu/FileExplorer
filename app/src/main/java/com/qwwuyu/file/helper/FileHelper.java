@@ -116,6 +116,32 @@ public class FileHelper {
         return bean;
     }
 
+    public static ResponseBean createDir(String path, String dirName) {
+        ResponseBean bean = new ResponseBean();
+        bean.setState(Constant.HTTP_ERR);
+        if (dirName == null || dirName.matches(".*[\\\\/:*?\"<>|]+.*")) {
+            bean.setInfo("不能包含特殊字符\\/:*?\"<>|");
+            return bean;
+        }
+        File file = file(path);
+        if (!file.isDirectory()) {
+            bean.setInfo("文件夹不存在");
+            return bean;
+        }
+        File dirFile = new File(file, dirName);
+        if (dirFile.exists()) {
+            bean.setInfo("文件夹已存在");
+            return bean;
+        }
+        if (dirFile.mkdir()) {
+            bean.setState(Constant.HTTP_SUC);
+            bean.setInfo("创建文件夹成功");
+        } else {
+            bean.setInfo("创建文件夹失败");
+        }
+        return bean;
+    }
+
     public static File file(String path) {
         return new File(Environment.getExternalStorageDirectory().getAbsolutePath() + path);
     }

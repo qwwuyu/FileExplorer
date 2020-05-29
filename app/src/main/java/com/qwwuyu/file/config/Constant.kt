@@ -18,6 +18,7 @@ object Constant {
     const val URL_DOWNLOAD = "/i/download"
     const val URL_OPEN = "/i/open"
     const val UPL_UPLOAD = "/i/upload"
+    const val UPL_CREATE_DIR = "/i/createDir"
 
     /* ======================== SP ======================== */
     const val SP_SHOW_POINT_FILE = "SP_SHOW_POINT_FILE"

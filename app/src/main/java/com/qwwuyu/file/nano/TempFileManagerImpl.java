@@ -1,7 +1,8 @@
 package com.qwwuyu.file.nano;
 
-import com.qwwuyu.file.utils.CommUtils;
+import com.qwwuyu.file.entity.FileExistException;
 import com.qwwuyu.file.helper.FileHelper;
+import com.qwwuyu.file.utils.CommUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,7 +51,7 @@ public class TempFileManagerImpl implements NanoHTTPD.TempFileManagerFactory {
         public MyTempFile(File dir, String filename) throws IOException {
             if (filename == null) file = File.createTempFile("FileManageTemp", "", dir);
             else file = new File(dir, filename);
-            if (filename != null && file.exists()) throw new IOException(filename + ":exist, not cover.");
+            if (filename != null && file.exists()) throw new FileExistException(file.getAbsolutePath());
             stream = new FileOutputStream(this.file);
         }
 

@@ -46,17 +46,15 @@ a, a:link, a:visited, a:hover, a:active {
 }
 
 .dir-ctrl {
-    margin-left: 8px;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    padding: 8px;
     font-size: 16px;
 }
 
-.file-folder, #back, #deleteDir {
+.file-folder, #back, #deleteDir, #newDir {
     cursor: pointer;
 }
 
-.file-folder:hover, #back:hover, #deleteDir:hover {
+.file-folder:hover, #back:hover, #deleteDir:hover, #newDir:hover {
     background: #F7F7F7;
 }
 

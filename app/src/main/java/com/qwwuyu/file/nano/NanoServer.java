@@ -5,17 +5,17 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.qwwuyu.file.config.Constant;
 import com.qwwuyu.file.entity.FileBean;
+import com.qwwuyu.file.entity.FileResultEntity;
 import com.qwwuyu.file.entity.ResponseBean;
-import com.qwwuyu.file.utils.AppUtils;
 import com.qwwuyu.file.helper.FileHelper;
+import com.qwwuyu.file.utils.AppUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class NanoServer extends NanoHTTPD {
     private final String[] url = new String[]{".html", ".css", ".js"};
@@ -44,18 +44,22 @@ public class NanoServer extends NanoHTTPD {
                         return callback(session, new Gson().toJson(FileHelper.delFile(path)));
                     case Constant.URL_DEL_DIR:
                         return callback(session, new Gson().toJson(FileHelper.delDir(path)));
-                    case Constant.URL_DOWNLOAD: {
+                    case Constant.URL_DOWNLOAD:
                         return download(path, true);
-                    }
-                    case Constant.URL_OPEN: {
+                    case Constant.URL_OPEN:
                         return download(path, false);
-                    }
-                    case Constant.UPL_UPLOAD: {
+                    case Constant.UPL_UPLOAD:
                         File file = FileHelper.file(path);
-                        Map<String, String> map = new LinkedHashMap<>();
-                        session.parseBody(map, file);
-                        return txt(new Gson().toJson(map));
-                    }
+                        FileResultEntity entity = new FileResultEntity();
+                        session.parseBody(entity, file);
+                        return txt(new Gson().toJson(entity));
+                    case Constant.UPL_CREATE_DIR:
+                        String dirName = session.getParms().get("dirName");
+                        try {
+                            dirName = URLDecoder.decode(dirName, "UTF-8");
+                        } catch (Exception ignored) {
+                        }
+                        return callback(session, new Gson().toJson(FileHelper.createDir(path, dirName)));
                 }
             }
 
