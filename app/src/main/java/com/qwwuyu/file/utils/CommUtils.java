@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import androidx.annotation.Nullable;
@@ -122,10 +123,13 @@ public class CommUtils {
 
     /** 安装apk */
     public static void installApk(Context context, File file, String fileProvider) {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setAction(Intent.ACTION_VIEW);
         Uri uri;
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.Q) {
+            uri = Uri.fromFile(file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             uri = FileProvider.getUriForFile(context, fileProvider, file);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -210,6 +214,18 @@ public class CommUtils {
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
         } else {
             imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        }
+    }
+
+    public static String getFileSize(long size) {
+        if (size < 1024L) {
+            return size + "B";
+        } else if (size < 1024L * 1024) {
+            return String.format(Locale.CHINA, "%.2fKB", size / 1024f);
+        } else if (size < 1024L * 1024 * 1024) {
+            return String.format(Locale.CHINA, "%.2fMB", size / 1024 / 1024f);
+        } else {
+            return String.format(Locale.CHINA, "%.2fGB", size / 1024 / 1024 / 1024f);
         }
     }
 }

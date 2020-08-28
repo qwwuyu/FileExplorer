@@ -50,11 +50,16 @@ a, a:link, a:visited, a:hover, a:active {
     font-size: 16px;
 }
 
-.file-folder, #back, #deleteDir, #newDir {
+.dir-ctrl-all {
+    padding: 8px;
+    font-size: 16px;
+}
+
+.file-folder, .dir-ctrl {
     cursor: pointer;
 }
 
-.file-folder:hover, #back:hover, #deleteDir:hover, #newDir:hover {
+.file-folder:hover, .dir-ctrl:hover {
     background: #F7F7F7;
 }
 
@@ -75,19 +80,30 @@ a, a:link, a:visited, a:hover, a:active {
     height: 24px;
 }
 
-.file-open, .file-download, .file-delete {
+.file-open, .file-download, .file-delete, .file-apk {
     font-size: 12px;
     cursor: pointer;
 }
 
-.file-open, .file-download {
-    margin-left: 12px;
+.file-open, .file-download, .file-apk {
     color: #2d64b3;
 }
 
 .file-delete {
     color: #909090;
+}
+
+.file-date, .file-info {
+    font-size: 12px;
+    color: #333;
+}
+
+.ml24 {
     margin-left: 24px;
+}
+
+.ml12 {
+    margin-left: 12px;
 }
 
 /*---------- alert ---------*/

@@ -17,6 +17,7 @@ object Constant {
     const val URL_DEL_DIR = "/i/delDir"
     const val URL_DOWNLOAD = "/i/download"
     const val URL_OPEN = "/i/open"
+    const val URL_APK = "/i/apk"
     const val UPL_UPLOAD = "/i/upload"
     const val UPL_CREATE_DIR = "/i/createDir"
 
@@ -24,4 +25,6 @@ object Constant {
     const val SP_SHOW_POINT_FILE = "SP_SHOW_POINT_FILE"
     const val SP_TXT_ENCODING = "SP_TXT_ENCODING"
     const val SP_AUTO_WIFI = "SP_AUTO_WIFI"
+    const val SP_DIR_INFO = "SP_DIR_INFO"
+    const val SP_SHOW_APK = "SP_SHOW_APK"
 }

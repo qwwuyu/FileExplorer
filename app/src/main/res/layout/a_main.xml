@@ -50,7 +50,7 @@
                 android:layout_marginBottom="4dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
-                android:text="显示以“.”开头的文件和目录"
+                android:text="显示以“.”开头的文件和文件夹"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
@@ -63,6 +63,30 @@
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:text="自动开启WIFI"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/cbDirInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="文件夹是否显示时间等信息"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/cbApk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="是否为(APK文件)显示安装按钮"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 

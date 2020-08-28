@@ -40,11 +40,7 @@ class MainActivity : AppCompatActivity() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 whatChange -> setIP()
-                whatAutoStart -> {
-                    if (!isStart) {
-                        start()
-                    }
-                }
+                whatAutoStart -> if (!isStart) start()
             }
         }
     }
@@ -65,6 +61,10 @@ class MainActivity : AppCompatActivity() {
         cbShowPoint.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setShowPointFile(isChecked) }
         cbAutoWifi.isChecked = ManageConfig.instance.isAutoWifi()
         cbAutoWifi.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setAutoWifi(isChecked) }
+        cbDirInfo.isChecked = ManageConfig.instance.isDirInfo()
+        cbDirInfo.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setDirInfo(isChecked) }
+        cbApk.isChecked = ManageConfig.instance.isShowApk()
+        cbApk.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setShowApk(isChecked) }
         tvVersion.text = "v${BuildConfig.VERSION_NAME}"
         tvEncoding.text = "txt预览编码方式：" + ManageConfig.instance.getTxtEncoding()
         btnEncoding.setOnClickListener {
@@ -92,18 +92,12 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         stop()
         handler.removeCallbacksAndMessages(null)
-        networkReceiver?.let {
-            unregisterReceiver(it)
-        }
+        networkReceiver?.let { unregisterReceiver(it) }
     }
 
     private fun init() {
         btnCtrl.setOnClickListener {
-            if (isStart) {
-                stop()
-            } else {
-                start()
-            }
+            if (isStart) stop() else start()
         }
 
         if (ManageConfig.instance.isAutoWifi()) {
@@ -135,7 +129,7 @@ class MainActivity : AppCompatActivity() {
     private fun start() {
         val ips = AppUtils.getCtrlIp()
         if (error("请开启Wifi、热点、USB共享网络之一", ips.isEmpty())) return
-        if (error("储存卡不存在或无法访问", !FileHelper.getInstance().checkCreate())) return
+        if (error("创建文件传输缓存目录失败", !FileHelper.instance.checkCreate())) return
         handler.removeMessages(whatChange)
         server?.stop()
         var port = 1764

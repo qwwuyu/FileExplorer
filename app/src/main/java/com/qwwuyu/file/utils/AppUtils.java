@@ -2,7 +2,6 @@ package com.qwwuyu.file.utils;
 
 import com.qwwuyu.file.WApplication;
 import com.qwwuyu.file.config.Constant;
-import com.qwwuyu.file.entity.FileBean;
 import com.qwwuyu.file.entity.NetBean;
 import com.qwwuyu.file.entity.NetType;
 import com.qwwuyu.file.entity.ResponseBean;
@@ -11,8 +10,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import androidx.annotation.ColorRes;
 
@@ -59,20 +56,6 @@ public class AppUtils {
             LogUtils.logError(e);
         }
         return beans;
-    }
-
-    public static void sortFileBean(List<? extends FileBean> list) {
-        Collections.sort(list, new Comparator<FileBean>() {
-            private int i = -1;
-            private int j = 1;
-
-            @Override
-            public int compare(FileBean lhs, FileBean rhs) {
-                if (lhs.dir && !rhs.dir) return i;
-                if (!lhs.dir && rhs.dir) return j;
-                return lhs.name.compareTo(rhs.name);
-            }
-        });
     }
 
     public static int getColor(@ColorRes int res) {

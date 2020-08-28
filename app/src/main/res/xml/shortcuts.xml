@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="setting"
+        android:shortcutLongLabel="@string/setting_long"
+        android:shortcutShortLabel="@string/setting"
+        tools:targetApi="25">
+        <intent
+            android:action="android.settings.APPLICATION_DETAILS_SETTINGS"
+            android:data="package:com.qwwuyu.file" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

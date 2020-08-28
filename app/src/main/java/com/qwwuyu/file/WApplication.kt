@@ -7,16 +7,12 @@ import com.qwwuyu.file.utils.LogUtils
 
 class WApplication : Application() {
     companion object {
-        lateinit var context: Context;
-    }
-
-    override fun attachBaseContext(base: Context?) {
-        super.attachBaseContext(base)
-        context = this;
+        lateinit var context: Context
     }
 
     override fun onCreate() {
         super.onCreate()
+        context = this
         LogUtils.Builder().setLogTag("qfm").enableLogHead(true)
         DisplayUtils.init(this)
     }

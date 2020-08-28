@@ -3,6 +3,8 @@ package com.qwwuyu.file.nano;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.qwwuyu.file.BuildConfig;
+import com.qwwuyu.file.WApplication;
 import com.qwwuyu.file.config.Constant;
 import com.qwwuyu.file.config.ManageConfig;
 import com.qwwuyu.file.entity.FileBean;
@@ -10,6 +12,7 @@ import com.qwwuyu.file.entity.FileResultEntity;
 import com.qwwuyu.file.entity.ResponseBean;
 import com.qwwuyu.file.helper.FileHelper;
 import com.qwwuyu.file.utils.AppUtils;
+import com.qwwuyu.file.utils.CommUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +46,9 @@ public class NanoServer extends NanoHTTPD {
                         return callback(session, new Gson().toJson(responseBean));
                     case Constant.URL_DEL:
                         return callback(session, new Gson().toJson(FileHelper.delFile(path)));
+                    case Constant.URL_APK:
+                        CommUtils.installApk(WApplication.context, FileHelper.file(path), BuildConfig.PROVIDER);
+                        return callback(session, new Gson().toJson(AppUtils.getSuccessBean()));
                     case Constant.URL_DEL_DIR:
                         return callback(session, new Gson().toJson(FileHelper.delDir(path)));
                     case Constant.URL_DOWNLOAD:

@@ -3,11 +3,14 @@ package com.qwwuyu.file.entity;
 public class FileBean {
     public String name;
     public boolean dir;
-    public String time;
+    public String date;
+    public String info;
+    public boolean apk;
 
-    public FileBean(String name, boolean dir, String time) {
+    public FileBean(String name, boolean dir, String date, String info) {
         this.name = name;
         this.dir = dir;
-        this.time = time;
+        this.date = date;
+        this.info = info;
     }
 }
