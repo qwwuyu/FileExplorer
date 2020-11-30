@@ -9,6 +9,8 @@ public enum NetType {
     RNDIS("USB"),
     /** 移动网络 */
     RMNET("移动网络"),
+    /** 有线网络 */
+    ETH("网卡"),
     /** OTHER */
     OTHER("其他");
     String name;

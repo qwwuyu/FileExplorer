@@ -27,7 +27,7 @@ public class AppUtils {
         try {
             for (NetworkInterface networkInterface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 String name = networkInterface.getName();
-                if (!name.contains("wlan") && !name.contains("rndis")) continue;
+                if (!name.contains("wlan") && !name.contains("rndis") && !name.contains("eth")) continue;
                 NetBean bean = new NetBean();
                 for (InetAddress inetAddress : Collections.list(networkInterface.getInetAddresses())) {
                     if (!inetAddress.isLoopbackAddress()) {
@@ -41,7 +41,9 @@ public class AppUtils {
                         }
                     }
                 }
-                if (name.contains("rndis")) {
+                if (name.contains("eth")) {
+                    bean.setType(NetType.ETH);
+                } else if (name.contains("rndis")) {
                     bean.setType(NetType.RNDIS);
                 } else if (name.contains("wlan") && bean.getIpv4() != null && bean.getIpv4().equals("192.168.43.1")) {
                     bean.setType(NetType.HOTSPOT);

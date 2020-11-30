@@ -4,7 +4,7 @@ import com.qwwuyu.file.utils.SpUtils
 
 class ManageConfig private constructor() {
     private var showPointFile: Boolean = SpUtils.getDefault().getValue(Constant.SP_SHOW_POINT_FILE, false)
-    private var autoWifi: Boolean = SpUtils.getDefault().getValue(Constant.SP_AUTO_WIFI, true)
+    private var autoWifi: Boolean = SpUtils.getDefault().getValue(Constant.SP_AUTO_WIFI, false)
     private var dirInfo: Boolean = SpUtils.getDefault().getValue(Constant.SP_AUTO_WIFI, false)
     private var showApk: Boolean = SpUtils.getDefault().getValue(Constant.SP_AUTO_WIFI, false)
     private var txtEncoding: String = SpUtils.getDefault().getValue(Constant.SP_TXT_ENCODING, "utf-8")

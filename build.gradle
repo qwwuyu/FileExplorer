@@ -35,7 +35,7 @@ ext.getPropertyByName = { key, defValue ->
     return value != null ? value : defValue
 }
 ext {
-    int major = 2, minor = 0, revision = 2
+    int major = 2, minor = 0, revision = 3
     configs = [
             compileSdkVersion: 29,
             minSdkVersion    : 19,
