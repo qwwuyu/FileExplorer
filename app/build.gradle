@@ -51,6 +51,12 @@ android {
         }
     }
 
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "FileManage${variant.mergedFlavor.versionName}.apk"
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -59,6 +65,7 @@ android {
     lintOptions {
         abortOnError false
         disable 'MissingTranslation'
+        checkReleaseBuilds false
     }
 }
 
