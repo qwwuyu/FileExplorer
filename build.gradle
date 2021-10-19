@@ -38,7 +38,7 @@ ext {
     int major = 2, minor = 0, revision = 3
     configs = [
             compileSdkVersion: 29,
-            minSdkVersion    : 19,
+            minSdkVersion    : 16,
             targetSdkVersion : 28,
             versionCode      : major * 10000 + minor * 100 + revision,
             versionName      : major + "." + minor + "." + revision,

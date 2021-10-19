@@ -57,6 +57,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -1628,7 +1629,16 @@ public abstract class NanoHTTPD {
                 if (closeable instanceof Closeable) {
                     ((Closeable) closeable).close();
                 } else {
-                    throw new IllegalArgumentException("Unknown object to close");
+                    try {
+                        java.lang.reflect.Method method = closeable.getClass().getMethod("close");
+                        method.invoke(closeable);
+                    } catch (NoSuchMethodException e) {
+                        throw new IllegalArgumentException("NoSuchMethodException to close");
+                    } catch (IllegalAccessException e) {
+                        throw new IllegalArgumentException("IllegalArgumentException to close");
+                    } catch (InvocationTargetException e) {
+                        throw new IllegalArgumentException("InvocationTargetException to close");
+                    }
                 }
             }
         } catch (IOException e) {

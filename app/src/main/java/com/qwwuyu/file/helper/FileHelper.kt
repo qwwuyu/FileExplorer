@@ -29,7 +29,7 @@ class FileHelper private constructor() {
     /** 创建文件SD卡路径  */
     private fun create() {
         var cacheDir: File? = null
-        if (CommUtils.isExternalEnable(WApplication.context)) {
+        if (CommUtils.isExternalEnable()) {
             cacheDir = WApplication.context.externalCacheDir
         }
         if (cacheDir == null) {

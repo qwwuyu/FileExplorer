@@ -113,9 +113,17 @@ public class CommUtils {
         return null;
     }
 
-    public static boolean isExternalEnable(Context context) {
+    public static boolean isExternalCacheEnable(Context context) {
         try {
-            return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && context.getExternalCacheDir() != null;
+            return context.getExternalCacheDir() != null && context.getExternalCacheDir().canRead();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isExternalEnable() {
+        try {
+            return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && Environment.getExternalStorageDirectory().canRead();
         } catch (Exception e) {
             return false;
         }

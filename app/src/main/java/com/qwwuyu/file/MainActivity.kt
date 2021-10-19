@@ -138,6 +138,7 @@ class MainActivity : AppCompatActivity() {
                 server = NanoServer(this@MainActivity, port)
                 server!!.tempFileManagerFactory = TempFileManagerImpl()
                 server!!.start()
+                LogUtils.i("start")
                 break
             } catch (e: Exception) {
                 LogUtils.logError(e)
