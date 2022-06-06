@@ -5,8 +5,9 @@ import com.qwwuyu.file.utils.SpUtils
 class ManageConfig private constructor() {
     private var showPointFile: Boolean = SpUtils.getDefault().getValue(Constant.SP_SHOW_POINT_FILE, false)
     private var autoWifi: Boolean = SpUtils.getDefault().getValue(Constant.SP_AUTO_WIFI, false)
-    private var dirInfo: Boolean = SpUtils.getDefault().getValue(Constant.SP_AUTO_WIFI, false)
-    private var showApk: Boolean = SpUtils.getDefault().getValue(Constant.SP_AUTO_WIFI, false)
+    private var dirInfo: Boolean = SpUtils.getDefault().getValue(Constant.SP_DIR_INFO, false)
+    private var showApk: Boolean = SpUtils.getDefault().getValue(Constant.SP_SHOW_APK, false)
+    private var isMedia: Boolean = SpUtils.getDefault().getValue(Constant.SP_MEDIA, false)
     private var txtEncoding: String = SpUtils.getDefault().getValue(Constant.SP_TXT_ENCODING, "utf-8")
 
     companion object {
@@ -49,6 +50,15 @@ class ManageConfig private constructor() {
     fun setShowApk(apk: Boolean) {
         showApk = apk
         SpUtils.getDefault().setValue(Constant.SP_SHOW_APK, apk)
+    }
+
+    fun isMedia(): Boolean {
+        return isMedia
+    }
+
+    fun setMedia(media: Boolean) {
+        isMedia = media
+        SpUtils.getDefault().setValue(Constant.SP_MEDIA, isMedia)
     }
 
     fun getTxtEncoding(): String {

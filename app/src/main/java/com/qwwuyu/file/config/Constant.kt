@@ -27,4 +27,5 @@ object Constant {
     const val SP_AUTO_WIFI = "SP_AUTO_WIFI"
     const val SP_DIR_INFO = "SP_DIR_INFO"
     const val SP_SHOW_APK = "SP_SHOW_APK"
+    const val SP_MEDIA = "SP_MEDIA"
 }

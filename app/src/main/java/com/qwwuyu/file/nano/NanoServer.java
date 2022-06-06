@@ -2,7 +2,6 @@ package com.qwwuyu.file.nano;
 
 import android.content.Context;
 
-import com.google.gson.Gson;
 import com.qwwuyu.file.BuildConfig;
 import com.qwwuyu.file.WApplication;
 import com.qwwuyu.file.config.Constant;
@@ -11,6 +10,7 @@ import com.qwwuyu.file.entity.FileBean;
 import com.qwwuyu.file.entity.FileResultEntity;
 import com.qwwuyu.file.entity.ResponseBean;
 import com.qwwuyu.file.helper.FileHelper;
+import com.qwwuyu.file.helper.GsonHelper;
 import com.qwwuyu.file.utils.AppUtils;
 import com.qwwuyu.file.utils.CommUtils;
 
@@ -43,14 +43,14 @@ public class NanoServer extends NanoHTTPD {
                     case Constant.URL_QUERY:
                         List<FileBean> list = FileHelper.getDirectoryFile(path);
                         ResponseBean responseBean = AppUtils.getSuccessBean().setData(list);
-                        return callback(session, new Gson().toJson(responseBean));
+                        return callback(session, GsonHelper.toJson(responseBean));
                     case Constant.URL_DEL:
-                        return callback(session, new Gson().toJson(FileHelper.delFile(path)));
+                        return callback(session, GsonHelper.toJson(FileHelper.delFile(path)));
                     case Constant.URL_APK:
                         CommUtils.installApk(WApplication.context, FileHelper.file(path), BuildConfig.PROVIDER);
-                        return callback(session, new Gson().toJson(AppUtils.getSuccessBean()));
+                        return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
                     case Constant.URL_DEL_DIR:
-                        return callback(session, new Gson().toJson(FileHelper.delDir(path)));
+                        return callback(session, GsonHelper.toJson(FileHelper.delDir(path)));
                     case Constant.URL_DOWNLOAD:
                         return download(path, true);
                     case Constant.URL_OPEN:
@@ -59,14 +59,14 @@ public class NanoServer extends NanoHTTPD {
                         File file = FileHelper.file(path);
                         FileResultEntity entity = new FileResultEntity();
                         session.parseBody(entity, file);
-                        return txt(new Gson().toJson(entity));
+                        return txt(GsonHelper.toJson(entity));
                     case Constant.UPL_CREATE_DIR:
                         String dirName = session.getParms().get("dirName");
                         try {
                             dirName = URLDecoder.decode(dirName, "UTF-8");
                         } catch (Exception ignored) {
                         }
-                        return callback(session, new Gson().toJson(FileHelper.createDir(path, dirName)));
+                        return callback(session, GsonHelper.toJson(FileHelper.createDir(path, dirName)));
                 }
             }
 

@@ -62,7 +62,7 @@
                 android:layout_marginBottom="4dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
-                android:text="自动开启WIFI"
+                android:text="自动开启WIFI(可能)"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
@@ -87,6 +87,18 @@
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:text="是否为(APK文件)显示安装按钮"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/cbMedia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="是否播放无声音频以保活应用"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
@@ -116,6 +128,13 @@
                     android:layout_marginLeft="16dp"
                     android:text="切换" />
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btnRData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="安卓11数据目录权限获取" />
         </LinearLayout>
     </ScrollView>
 

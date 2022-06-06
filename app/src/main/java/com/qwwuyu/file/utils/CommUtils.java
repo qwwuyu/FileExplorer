@@ -115,7 +115,7 @@ public class CommUtils {
 
     public static boolean isExternalCacheEnable(Context context) {
         try {
-            return context.getExternalCacheDir() != null && context.getExternalCacheDir().canRead();
+            return context.getExternalCacheDir() != null && context.getExternalCacheDir().canWrite();
         } catch (Exception e) {
             return false;
         }
@@ -123,7 +123,7 @@ public class CommUtils {
 
     public static boolean isExternalEnable() {
         try {
-            return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && Environment.getExternalStorageDirectory().canRead();
+            return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && Environment.getExternalStorageDirectory().canWrite();
         } catch (Exception e) {
             return false;
         }

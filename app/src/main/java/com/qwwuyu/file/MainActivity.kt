@@ -1,32 +1,38 @@
 package com.qwwuyu.file
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.qwwuyu.file.config.Constant
 import com.qwwuyu.file.config.ManageConfig
 import com.qwwuyu.file.helper.FileHelper
 import com.qwwuyu.file.helper.KeepServer
+import com.qwwuyu.file.helper.MediaPlayerHelper
+import com.qwwuyu.file.helper.PermitHelper
 import com.qwwuyu.file.nano.NanoServer
 import com.qwwuyu.file.nano.TempFileManagerImpl
 import com.qwwuyu.file.utils.AppUtils
 import com.qwwuyu.file.utils.LogUtils
 import com.qwwuyu.file.utils.SystemBarUtil
 import com.qwwuyu.file.utils.ToastUtil
-import com.qwwuyu.file.utils.permit.PermitUtil
-import com.qwwuyu.file.utils.permit.SPermitCtrl
 import kotlinx.android.synthetic.main.a_main.*
 
 @SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val CODE_STORAGE = 100
+        const val CODE_STORAGE_MANAGER = 101
+    }
+
     private var server: NanoServer? = null
     private var isStart = false
     private var openPort = 0
@@ -34,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     private var networkReceiver: BroadcastReceiver? = null
     private val whatChange = 100
     private val whatAutoStart = 101
+
+    private val player: MediaPlayerHelper by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) { MediaPlayerHelper() }
 
     @SuppressLint("HandlerLeak")
     private val handler = object : Handler() {
@@ -65,6 +73,12 @@ class MainActivity : AppCompatActivity() {
         cbDirInfo.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setDirInfo(isChecked) }
         cbApk.isChecked = ManageConfig.instance.isShowApk()
         cbApk.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setShowApk(isChecked) }
+        cbMedia.isChecked = ManageConfig.instance.isMedia()
+        cbMedia.setOnCheckedChangeListener { _, isChecked ->
+            ManageConfig.instance.setMedia(isChecked)
+            checkMedia()
+        }
+
         tvVersion.text = "v${BuildConfig.VERSION_NAME}"
         tvEncoding.text = "txt预览编码方式：" + ManageConfig.instance.getTxtEncoding()
         btnEncoding.setOnClickListener {
@@ -74,25 +88,42 @@ class MainActivity : AppCompatActivity() {
 
         SystemBarUtil.setStatusBarColor(this, AppUtils.getColor(R.color.white))
         SystemBarUtil.setStatusBarDarkMode(this, true)
-        PermitUtil.request(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-            object : SPermitCtrl() {
-                override fun onGranted() {
-                    init()
-                }
 
-                override fun onDenied(granted: List<String>, onlyDenied: List<String>, foreverDenied: List<String>, denied: List<String>) {
-                    ToastUtil.show("获取储存权限失败")
-                    PermitUtil.openSetting(this@MainActivity, true)
-                    finish()
-                }
-            })
+        if (PermitHelper.checkStorage(this, CODE_STORAGE)) {
+            init()
+        } else {
+            ToastUtil.show("获取储存权限失败")
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            btnRData.setOnClickListener { PermitHelper.androidRData(this, CODE_STORAGE_MANAGER) }
+        } else {
+            btnRData.visibility = View.GONE
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         stop()
+        player.destroy()
         handler.removeCallbacksAndMessages(null)
         networkReceiver?.let { unregisterReceiver(it) }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CODE_STORAGE) {
+            if (PermitHelper.checkStorageResult(this)) {
+                init()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (CODE_STORAGE_MANAGER == requestCode && resultCode == RESULT_OK) {
+            LogUtils.i("onActivityResult:$resultCode")
+        }
     }
 
     private fun init() {
@@ -150,6 +181,7 @@ class MainActivity : AppCompatActivity() {
         openPort = port
         setIP()
         KeepServer.start()
+        checkMedia()
     }
 
     private fun stop() {
@@ -160,6 +192,7 @@ class MainActivity : AppCompatActivity() {
         tvMessage.setTextColor(AppUtils.getColor(R.color.message_normal))
         btnCtrl.text = "开启"
         KeepServer.stop()
+        checkMedia()
     }
 
     private fun setIP() {
@@ -177,11 +210,19 @@ class MainActivity : AppCompatActivity() {
         btnCtrl.text = "关闭"
     }
 
-    fun error(text: String?, show: Boolean): Boolean {
+    private fun error(text: String?, show: Boolean): Boolean {
         if (show) {
             tvMessage.text = text
             tvMessage.setTextColor(AppUtils.getColor(R.color.message_error))
         }
         return show
+    }
+
+    private fun checkMedia() {
+        if (isStart && ManageConfig.instance.isMedia()) {
+            player.play()
+        } else {
+            player.stop()
+        }
     }
 }

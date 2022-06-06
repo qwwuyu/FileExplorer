@@ -1,32 +1,45 @@
-package com.qwwuyu.file.utils;
+package com.qwwuyu.file.helper;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
-import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.Nullable;
+import kotlin.Unit;
 
-public class GsonUtils {
+public class GsonHelper {
     private static Gson gson;
 
-    static {
-        gson = new GsonBuilder()
-                .registerTypeAdapter(Void.class, new VoidTypeAdapter())
-                .create();
+    public static void init(GsonBuilder gsonBuilder) {
+        if (gson == null) {
+            synchronized (GsonHelper.class) {
+                if (gson == null) {
+                    gson = gsonBuilder
+                            .registerTypeAdapter(Date.class, new DateTypeAdapter())
+                            //.registerTypeAdapter(float.class, new FloatTypeAdapter(0f))//处理float返回空字符串
+                            //.registerTypeAdapter(Float.class, new FloatTypeAdapter(null))//处理Float返回空字符串
+                            //.registerTypeAdapter(JsonDeserializer.class, deserializer)
+                            //.addSerializationExclusionStrategy(new Exclusion())
+                            //.addDeserializationExclusionStrategy(new Exclusion())
+                            .create();
+                }
+            }
+        }
     }
 
     public static Gson getGson() {
+        if (gson == null) {
+            synchronized (GsonHelper.class) {
+                init(new GsonBuilder());
+            }
+        }
         return gson;
     }
 
@@ -54,7 +67,8 @@ public class GsonUtils {
     /**
      * 将对象转化为json
      */
-    public static String toJson(Object obj) {
+    @NotNull
+    public static String toJson(@NotNull Object obj) {
         return getGson().toJson(obj);
     }
 
@@ -64,17 +78,18 @@ public class GsonUtils {
     public static Type getActualTypeArgument0(Class<?> subclass) {
         Type superclass = subclass.getGenericSuperclass();
         if (superclass instanceof ParameterizedType) {
-            return ((ParameterizedType) superclass).getActualTypeArguments()[0];
+            Type[] types = ((ParameterizedType) superclass).getActualTypeArguments();
+            return types.length > 0 ? types[0] : null;
         }
         return null;
     }
 
     /**
-     * 判断type是否是Void类型
+     * 判断type是否是String类型
      */
-    public static boolean isTypeVoid(Type type) {
+    public static boolean isTypeString(Type type) {
         if (type instanceof Class) {
-            return Void.class.isAssignableFrom((Class) type);
+            return String.class.isAssignableFrom((Class) type);
         }
         return false;
     }
@@ -92,16 +107,13 @@ public class GsonUtils {
         return false;
     }
 
-    private static final class VoidTypeAdapter extends TypeAdapter<Void> {
-        @Override
-        public void write(final JsonWriter out, final Void value) throws IOException {
-            out.nullValue();
+    /**
+     * 判断type是否是Unit类型
+     */
+    public static boolean isTypeUnit(Type type) {
+        if (type instanceof Class) {
+            return Unit.class.isAssignableFrom((Class) type);
         }
-
-        @Override
-        public Void read(final JsonReader in) throws IOException {
-            in.skipValue();
-            return null;
-        }
+        return false;
     }
 }
