@@ -11,6 +11,7 @@ import com.qwwuyu.file.entity.FileResultEntity;
 import com.qwwuyu.file.entity.ResponseBean;
 import com.qwwuyu.file.helper.FileHelper;
 import com.qwwuyu.file.helper.GsonHelper;
+import com.qwwuyu.file.helper.RFileHelper;
 import com.qwwuyu.file.utils.AppUtils;
 import com.qwwuyu.file.utils.CommUtils;
 
@@ -42,6 +43,7 @@ public class NanoServer extends NanoHTTPD {
                 switch (uri) {
                     case Constant.URL_QUERY:
                         List<FileBean> list = FileHelper.getDirectoryFile(path);
+                        if (list.isEmpty()) list = RFileHelper.getDirectoryFile(path);
                         ResponseBean responseBean = AppUtils.getSuccessBean().setData(list);
                         return callback(session, GsonHelper.toJson(responseBean));
                     case Constant.URL_DEL:

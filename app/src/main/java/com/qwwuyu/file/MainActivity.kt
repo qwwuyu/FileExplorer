@@ -11,13 +11,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.qwwuyu.file.config.Constant
 import com.qwwuyu.file.config.ManageConfig
-import com.qwwuyu.file.helper.FileHelper
-import com.qwwuyu.file.helper.KeepServer
-import com.qwwuyu.file.helper.MediaPlayerHelper
-import com.qwwuyu.file.helper.PermitHelper
+import com.qwwuyu.file.helper.*
 import com.qwwuyu.file.nano.NanoServer
 import com.qwwuyu.file.nano.TempFileManagerImpl
 import com.qwwuyu.file.utils.AppUtils
@@ -30,7 +28,6 @@ import kotlinx.android.synthetic.main.a_main.*
 class MainActivity : AppCompatActivity() {
     companion object {
         const val CODE_STORAGE = 100
-        const val CODE_STORAGE_MANAGER = 101
     }
 
     private var server: NanoServer? = null
@@ -95,8 +92,9 @@ class MainActivity : AppCompatActivity() {
             ToastUtil.show("获取储存权限失败")
         }
 
+        btnBattery.setOnClickListener { PermitHelper.batteryOptimizations(this) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            btnRData.setOnClickListener { PermitHelper.androidRData(this, CODE_STORAGE_MANAGER) }
+            btnRData.setOnClickListener { RFileHelper.requestAndroidData(this) }
         } else {
             btnRData.visibility = View.GONE
         }
@@ -119,11 +117,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (CODE_STORAGE_MANAGER == requestCode && resultCode == RESULT_OK) {
-            LogUtils.i("onActivityResult:$resultCode")
-        }
+        RFileHelper.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun init() {

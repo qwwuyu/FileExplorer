@@ -130,11 +130,19 @@
             </LinearLayout>
 
             <Button
+                android:id="@+id/btnBattery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="电池白名单申请" />
+
+            <Button
                 android:id="@+id/btnRData"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
-                android:text="安卓11数据目录权限获取" />
+                android:text="安卓11 sdcard:Android/data目录获取权限"
+                android:textAllCaps="false" />
         </LinearLayout>
     </ScrollView>
 

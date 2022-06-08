@@ -28,12 +28,9 @@ class FileHelper private constructor() {
 
     /** 创建文件SD卡路径  */
     private fun create() {
-        var cacheDir: File? = null
-        if (CommUtils.isExternalEnable()) {
+        var cacheDir: File? = WApplication.context.cacheDir
+        if (cacheDir == null && CommUtils.isExternalCacheEnable(WApplication.context)) {
             cacheDir = WApplication.context.externalCacheDir
-        }
-        if (cacheDir == null) {
-            cacheDir = WApplication.context.cacheDir
         }
         cachePath = cacheDir.toString() + File.separator + "ManageCache" + File.separator
         val file = File(cachePath!!)
@@ -70,11 +67,11 @@ class FileHelper private constructor() {
                     fileBeans.add(fileBean)
                 }
             }
-            fileBeans.sortWith(kotlin.Comparator { lhs, rhs ->
+            fileBeans.sortWith { lhs, rhs ->
                 if (lhs.dir && !rhs.dir) -1
                 else if (!lhs.dir && rhs.dir) 1
                 else lhs.name.compareTo(rhs.name)
-            })
+            }
             return fileBeans
         }
 

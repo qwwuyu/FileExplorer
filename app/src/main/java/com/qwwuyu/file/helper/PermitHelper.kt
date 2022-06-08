@@ -11,11 +11,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.PowerManager
-import android.os.storage.StorageManager
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.qwwuyu.file.utils.LogUtils
 
 object PermitHelper {
     fun checkStorage(activity: Activity, requestCode: Int): Boolean {
@@ -96,31 +94,6 @@ object PermitHelper {
                 }
             }
         } catch (_: Exception) {
-        }
-    }
-
-    fun androidRData(activity: Activity, code: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val sm = activity.getSystemService(Context.STORAGE_SERVICE) as StorageManager
-            val intent: Intent = sm.primaryStorageVolume.createOpenDocumentTreeIntent()
-            //String startDir = "Android";
-            //String startDir = "Download"; // Not choosable on an Android 11 device
-            //String startDir = "DCIM";
-            //String startDir = "DCIM/Camera";  // replace "/", "%2F"
-            //String startDir = "DCIM%2FCamera";
-            // String startDir = "Documents";
-            var startDir = "Android/data"
-            var uri = intent.getParcelableExtra<Uri>("android.provider.extra.INITIAL_URI")
-            var scheme = uri.toString()
-            LogUtils.i("INITIAL_URI scheme: $scheme")
-            scheme = scheme.replace("/root/", "/document/")
-            startDir = startDir.replace("/", "%2F")
-            scheme += "%3A$startDir"
-            uri = Uri.parse(scheme)
-            intent.putExtra("android.provider.extra.INITIAL_URI", uri)
-            LogUtils.i("uri: $uri")
-            activity.startActivityForResult(intent, code)
-            return
         }
     }
 }
