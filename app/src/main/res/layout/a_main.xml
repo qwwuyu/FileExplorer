@@ -55,18 +55,6 @@
                 android:textSize="14sp" />
 
             <CheckBox
-                android:id="@+id/cbAutoWifi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:text="自动开启WIFI(可能)"
-                android:textColor="@color/black"
-                android:textSize="14sp" />
-
-            <CheckBox
                 android:id="@+id/cbDirInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -75,6 +63,18 @@
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:text="文件夹是否显示时间等信息"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/cbAutoWifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="自动开启WIFI(安卓10及以上无效)"
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
