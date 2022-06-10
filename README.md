@@ -1,9 +1,9 @@
 # Screenshot
 - 网页截图  
-<img src="https://github.com/qwwuyu/FileManage/blob/master/screenshot/Screenshot2.png" width="50%" />
+<img src="https://github.com/qwwuyu/FileManage/blob/master/screenshot/screenshot2.png" width="50%" />
 
 - 手机截图  
-<img src="https://github.com/qwwuyu/FileManage/blob/master/screenshot/screenshot1.jpg" width="50%"/>
+<img src="https://github.com/qwwuyu/FileManage/blob/master/screenshot/screenshot1.png" width="50%"/>
 
 已有功能
 - [x] 网页浏览手机文件
@@ -12,6 +12,7 @@
 - [x] apk文件提示手机安装
 
 不知何年何月的新增功能
+- [ ] 使用vue开发web
 - [ ] 文件排序方式 > 时间排序
 - [ ] 主目录文件记录(对比和处理主目录)
 - [ ] 导入导出当前所有配置

@@ -71,7 +71,15 @@ public class NotificationUtils {
         builder.setContentText("点击关闭文件管理服务");
         builder.setPriority(Notification.PRIORITY_MAX);
         if (intent != null) {
-            builder.setContentIntent(PendingIntent.getActivity(context, NOTIFY_MANAGE, intent, PendingIntent.FLAG_CANCEL_CURRENT));
+            int flags;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                flags = PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_CANCEL_CURRENT;
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT;
+            } else {
+                flags = PendingIntent.FLAG_CANCEL_CURRENT;
+            }
+            builder.setContentIntent(PendingIntent.getActivity(context, NOTIFY_MANAGE, intent, flags));
         }
         return builder.build();
     }
