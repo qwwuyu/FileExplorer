@@ -17,7 +17,6 @@ import com.qwwuyu.file.config.Constant
 import com.qwwuyu.file.config.ManageConfig
 import com.qwwuyu.file.helper.*
 import com.qwwuyu.file.nano.NanoServer
-import com.qwwuyu.file.nano.TempFileManagerImpl
 import com.qwwuyu.file.utils.AppUtils
 import com.qwwuyu.file.utils.LogUtils
 import com.qwwuyu.file.utils.SystemBarUtil
@@ -93,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnBattery.setOnClickListener { PermitHelper.batteryOptimizations(this) }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (RFileHelper.isR()) {
             btnRData.setOnClickListener { RFileHelper.requestAndroidData(this) }
         } else {
             btnRData.visibility = View.GONE
@@ -117,7 +116,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         RFileHelper.onActivityResult(requestCode, resultCode, data)
@@ -164,7 +162,6 @@ class MainActivity : AppCompatActivity() {
         while (port < 1767) {
             try {
                 server = NanoServer(this@MainActivity, port)
-                server!!.tempFileManagerFactory = TempFileManagerImpl()
                 server!!.start()
                 LogUtils.i("start")
                 break

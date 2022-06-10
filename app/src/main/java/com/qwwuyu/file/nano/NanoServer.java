@@ -2,8 +2,6 @@ package com.qwwuyu.file.nano;
 
 import android.content.Context;
 
-import com.qwwuyu.file.BuildConfig;
-import com.qwwuyu.file.WApplication;
 import com.qwwuyu.file.config.Constant;
 import com.qwwuyu.file.config.ManageConfig;
 import com.qwwuyu.file.entity.FileBean;
@@ -11,12 +9,9 @@ import com.qwwuyu.file.entity.FileResultEntity;
 import com.qwwuyu.file.entity.ResponseBean;
 import com.qwwuyu.file.helper.FileHelper;
 import com.qwwuyu.file.helper.GsonHelper;
-import com.qwwuyu.file.helper.RFileHelper;
 import com.qwwuyu.file.utils.AppUtils;
-import com.qwwuyu.file.utils.CommUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -28,7 +23,7 @@ public class NanoServer extends NanoHTTPD {
     private Context context;
 
     public NanoServer(Context context, int port) {
-        super(port);
+        super(port, new TempFileManagerImpl());
         this.context = context;
     }
 
@@ -40,25 +35,24 @@ public class NanoServer extends NanoHTTPD {
                 String path = session.getParms().get("path");
                 if (path == null) path = "/";
                 if (!path.startsWith("/")) path = "/" + path;
+                ProxyFile file = FileHelper.getFile(path);
                 switch (uri) {
                     case Constant.URL_QUERY:
-                        List<FileBean> list = FileHelper.getDirectoryFile(path);
-                        if (list.isEmpty()) list = RFileHelper.getDirectoryFile(path);
+                        List<FileBean> list = FileHelper.getDirectoryFile(file);
                         ResponseBean responseBean = AppUtils.getSuccessBean().setData(list);
                         return callback(session, GsonHelper.toJson(responseBean));
                     case Constant.URL_DEL:
-                        return callback(session, GsonHelper.toJson(FileHelper.delFile(path)));
+                        return callback(session, GsonHelper.toJson(FileHelper.delFile(file)));
                     case Constant.URL_APK:
-                        CommUtils.installApk(WApplication.context, FileHelper.file(path), BuildConfig.PROVIDER);
+                        file.installApk();
                         return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
                     case Constant.URL_DEL_DIR:
-                        return callback(session, GsonHelper.toJson(FileHelper.delDir(path)));
+                        return callback(session, GsonHelper.toJson(FileHelper.delDir(file)));
                     case Constant.URL_DOWNLOAD:
-                        return download(path, true);
+                        return download(file, true);
                     case Constant.URL_OPEN:
-                        return download(path, false);
+                        return download(file, false);
                     case Constant.UPL_UPLOAD:
-                        File file = FileHelper.file(path);
                         FileResultEntity entity = new FileResultEntity();
                         session.parseBody(entity, file);
                         return txt(GsonHelper.toJson(entity));
@@ -68,7 +62,7 @@ public class NanoServer extends NanoHTTPD {
                             dirName = URLDecoder.decode(dirName, "UTF-8");
                         } catch (Exception ignored) {
                         }
-                        return callback(session, GsonHelper.toJson(FileHelper.createDir(path, dirName)));
+                        return callback(session, GsonHelper.toJson(FileHelper.createDir(file, dirName)));
                 }
             }
 
@@ -100,14 +94,14 @@ public class NanoServer extends NanoHTTPD {
         return newFixedLengthResponse(Response.Status.OK, NanoHTTPD.MIME_HTML, "<html><body><h1>" + body + "</h1></body></html>");
     }
 
-    private Response download(String path, boolean download) throws Exception {
-        File file = FileHelper.file(path);
+    private Response download(ProxyFile file, boolean download) throws Exception {
+        if (file == null) throw new FileNotFoundException();
         String fileName = file.getName();
-        Response response = newFixedLengthResponse(Response.Status.OK, download ? "application/octet-stream" : null, new FileInputStream(file), file.length());
+        Response response = newFixedLengthResponse(Response.Status.OK, download ? "application/octet-stream" : null, file.inputStream(), file.length());
         response.addHeader("Content-Disposition", (download ? "attachment" : "inline")
                 + "; filename=\"" + URLEncoder.encode(fileName, "utf-8") + "\"");
         if (fileName.endsWith(".txt")) {
-            response.addHeader("Content-Type", "text/plain; charset=" + ManageConfig.Companion.getInstance().getTxtEncoding());
+            response.addHeader("Content-Type", "text/plain; charset=" + ManageConfig.getInstance().getTxtEncoding());
         }
         return response;
     }

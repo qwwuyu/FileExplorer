@@ -2,6 +2,7 @@ package com.qwwuyu.file.nano
 
 import androidx.documentfile.provider.DocumentFile
 import com.qwwuyu.file.WApplication
+import com.qwwuyu.file.utils.CommUtils
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -47,6 +48,10 @@ class DocFile(_file: DocumentFile) : ProxyFile() {
         return file.listFiles().map { DocFile(it) }.toTypedArray()
     }
 
+    override fun installApk() {
+        CommUtils.installApk(WApplication.context, file.uri)
+    }
+
     override fun inputStream(): InputStream? {
         return WApplication.context.contentResolver.openInputStream(file.uri)
     }
@@ -65,5 +70,12 @@ class DocFile(_file: DocumentFile) : ProxyFile() {
 
     override fun createDirectory(name: String): ProxyFile? {
         return DocFile(file.createDirectory(name) ?: return null)
+    }
+
+    override fun getPath(): String {
+        var str = file.uri.toString()
+        if (!str.contains("%3A")) return str
+        str = str.substring(str.lastIndexOf("%3A") + 3)
+        return "/" + str.replace("%2F", "/")
     }
 }

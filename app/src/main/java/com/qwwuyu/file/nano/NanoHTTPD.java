@@ -67,7 +67,9 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.text.SimpleDateFormat;
@@ -96,6 +98,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
+
+import androidx.annotation.NonNull;
 
 /**
  * A simple, tiny, nicely embeddable HTTP server in Java
@@ -230,7 +234,7 @@ public abstract class NanoHTTPD {
      * 'secure' nor 'httpOnly'. Feel free to improve it and/or add unsupported features.
      * @author LordFokas
      */
-    public class CookieHandler implements Iterable<String> {
+    public static class CookieHandler implements Iterable<String> {
         private final HashMap<String, String> cookies = new HashMap<>();
         private final ArrayList<Cookie> queue = new ArrayList<>();
 
@@ -255,6 +259,7 @@ public abstract class NanoHTTPD {
             set(name, "-delete-", -30);
         }
 
+        @NonNull
         @Override
         public Iterator<String> iterator() {
             return this.cookies.keySet().iterator();
@@ -305,7 +310,7 @@ public abstract class NanoHTTPD {
      */
     public static class DefaultAsyncRunner implements AsyncRunner {
         private long requestCount;
-        private final List<ClientHandler> running = Collections.synchronizedList(new ArrayList<ClientHandler>());
+        private final List<ClientHandler> running = Collections.synchronizedList(new ArrayList<>());
 
         /**
          * @return a list with currently running clients.
@@ -335,90 +340,6 @@ public abstract class NanoHTTPD {
             t.setName("NanoHttpd Request Processor (#" + this.requestCount + ")");
             this.running.add(clientHandler);
             t.start();
-        }
-    }
-
-    /**
-     * Default strategy for creating and cleaning up temporary files.
-     * <p/>
-     * By default, files are created by <code>File.createTempFile()</code> in the directory specified.
-     */
-    public static class DefaultTempFile implements TempFile {
-        private final File file;
-        private final OutputStream fstream;
-
-        public DefaultTempFile(File tempdir) throws IOException {
-            this.file = File.createTempFile("NanoHTTPD-", "", tempdir);
-            this.fstream = new FileOutputStream(this.file);
-        }
-
-        @Override
-        public void delete() throws Exception {
-            safeClose(this.fstream);
-            if (!this.file.delete()) {
-                throw new Exception("could not delete temporary file");
-            }
-        }
-
-        @Override
-        public String getName() {
-            return this.file.getAbsolutePath();
-        }
-
-        @Override
-        public OutputStream open() throws Exception {
-            return this.fstream;
-        }
-    }
-
-    /**
-     * Default strategy for creating and cleaning up temporary files.
-     * <p/>
-     * <p>
-     * This class stores its files in the standard location (that is, wherever <code>java.io.tmpdir</code> points to).
-     * Files are added to an internal list, and deleted when no longer needed
-     * (that is, when <code>clear()</code> is invoked at the end of processing a request).
-     * </p>
-     */
-    public static class DefaultTempFileManager implements TempFileManager {
-        private final File tmpdir;
-        private final List<TempFile> tempFiles;
-
-        public DefaultTempFileManager() {
-            this.tmpdir = new File(System.getProperty("java.io.tmpdir"));
-            if (!tmpdir.exists()) {
-                tmpdir.mkdirs();
-            }
-            this.tempFiles = new ArrayList<>();
-        }
-
-        @Override
-        public void clear() {
-            for (TempFile file : this.tempFiles) {
-                try {
-                    file.delete();
-                } catch (Exception ignored) {
-                    NanoHTTPD.LOG.log(Level.WARNING, "could not delete file ", ignored);
-                }
-            }
-            this.tempFiles.clear();
-        }
-
-        @Override
-        public TempFile createTempFile(File directory, String filename_hint) throws Exception {
-            DefaultTempFile tempFile = new DefaultTempFile(this.tmpdir);
-            this.tempFiles.add(tempFile);
-            return tempFile;
-        }
-    }
-
-    /**
-     * Default strategy for creating and cleaning up temporary files.
-     */
-    private class DefaultTempFileManagerFactory implements TempFileManagerFactory {
-        @Override
-        public TempFileManager create() {
-            return new DefaultTempFileManager();
         }
     }
 
@@ -589,7 +510,7 @@ public abstract class NanoHTTPD {
 
         /** Decodes the Multipart Body data and put it into Key/Value pairs. */
         private void decodeMultipartFormData(String boundary, String encoding, ByteBuffer fbuf, Map<String, String> parms, FileResultEntity entity,
-                                             File directory) throws ResponseException {
+                                             ProxyFile directory) throws ResponseException {
             try {
                 int[] boundary_idxs = getBoundaryPositions(fbuf, boundary.getBytes());
                 if (boundary_idxs.length < 2) {
@@ -599,7 +520,7 @@ public abstract class NanoHTTPD {
                 byte[] part_header_buff = new byte[MAX_HEADER_SIZE];
                 for (int bi = 0; bi < boundary_idxs.length - 1; bi++) {
                     fbuf.position(boundary_idxs[bi]);
-                    int len = (fbuf.remaining() < MAX_HEADER_SIZE) ? fbuf.remaining() : MAX_HEADER_SIZE;
+                    int len = Math.min(fbuf.remaining(), MAX_HEADER_SIZE);
                     fbuf.get(part_header_buff, 0, len);
                     BufferedReader in = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(part_header_buff, 0, len), Charset.forName(encoding)), len);
 
@@ -839,7 +760,7 @@ public abstract class NanoHTTPD {
             int search_window_pos = 0;
             byte[] search_window = new byte[4 * 1024 + boundary.length];
 
-            int first_fill = (b.remaining() < search_window.length) ? b.remaining() : search_window.length;
+            int first_fill = Math.min(b.remaining(), search_window.length);
             b.get(search_window, 0, first_fill);
             int new_bytes = first_fill - boundary.length;
 
@@ -864,7 +785,7 @@ public abstract class NanoHTTPD {
 
                 // Refill search_window
                 new_bytes = search_window.length - boundary.length;
-                new_bytes = (b.remaining() < new_bytes) ? b.remaining() : new_bytes;
+                new_bytes = Math.min(b.remaining(), new_bytes);
                 b.get(search_window, boundary.length, new_bytes);
             } while (new_bytes > 0);
             return res;
@@ -902,8 +823,7 @@ public abstract class NanoHTTPD {
 
         private RandomAccessFile getTmpBucket() {
             try {
-                TempFile tempFile = this.tempFileManager.createTempFile(null, null);
-                return new RandomAccessFile(tempFile.getName(), "rw");
+                return this.tempFileManager.randomAccessFile();
             } catch (Exception e) {
                 throw new Error(e); // we won't recover, so throw an error
             }
@@ -927,7 +847,7 @@ public abstract class NanoHTTPD {
         }
 
         @Override
-        public void parseBody(FileResultEntity entity, File directory) throws IOException, ResponseException {
+        public void parseBody(FileResultEntity entity, ProxyFile directory) throws IOException, ResponseException {
             RandomAccessFile randomAccessFile = null;
             try {
                 long size = getBodySize();
@@ -1010,23 +930,25 @@ public abstract class NanoHTTPD {
         /**
          * Retrieves the content of a sent file and saves it to a temporary file. The full path to the saved file is returned.
          */
-        private void saveTmpFile(ByteBuffer b, int offset, int len, String filename_hint, File directory, FileResultEntity entity) {
+        private void saveTmpFile(ByteBuffer b, int offset, int len, String filename_hint, ProxyFile directory, FileResultEntity entity) {
             if (len > 0) {
-                FileOutputStream fileOutputStream = null;
+                OutputStream outputStream = null;
+                WritableByteChannel channel = null;
                 try {
                     TempFile tempFile = this.tempFileManager.createTempFile(directory, filename_hint);
                     ByteBuffer src = b.duplicate();
-                    fileOutputStream = new FileOutputStream(tempFile.getName());
-                    FileChannel dest = fileOutputStream.getChannel();
                     src.position(offset).limit(offset + len);
-                    dest.write(src.slice());
+                    outputStream = tempFile.open();
+                    channel = Channels.newChannel(outputStream);
+                    channel.write(src.slice());
                     entity.setSuccessFile(tempFile.getName());
                 } catch (FileExistException e) {
                     entity.setExistFile(e.getMessage());
                 } catch (Exception e) {
                     throw new Error(e);// we won't recover, so throw an error
                 } finally {
-                    safeClose(fileOutputStream);
+                    safeClose(channel);
+                    safeClose(outputStream);
                 }
             } else {
                 entity.setFailureFile(filename_hint);
@@ -1061,7 +983,7 @@ public abstract class NanoHTTPD {
         /**
          * Adds the files in the request body to the FileResultEntity.
          */
-        void parseBody(FileResultEntity entity, File directory) throws IOException, ResponseException;
+        void parseBody(FileResultEntity entity, ProxyFile directory) throws IOException, ResponseException;
     }
 
     /**
@@ -1481,14 +1403,16 @@ public abstract class NanoHTTPD {
     public interface TempFileManager {
         void clear();
 
-        TempFile createTempFile(File directory, String filename_hint) throws Exception;
+        RandomAccessFile randomAccessFile() throws Exception;
+
+        TempFile createTempFile(ProxyFile directory, String filename_hint) throws Exception;
     }
 
     /**
      * Factory to create temp file managers.
      */
     public interface TempFileManagerFactory {
-        TempFileManager create();
+        TempFileManager create() throws Exception;
     }
 
     /**
@@ -1664,13 +1588,13 @@ public abstract class NanoHTTPD {
     /**
      * Pluggable strategy for creating and cleaning up temporary files.
      */
-    private TempFileManagerFactory tempFileManagerFactory;
+    private final TempFileManagerFactory tempFileManagerFactory;
 
     /**
      * Constructs an HTTP server on given port.
      */
-    public NanoHTTPD(int port) {
-        this(null, port);
+    public NanoHTTPD(int port, TempFileManagerFactory tempFileManagerFactory) {
+        this(null, port, tempFileManagerFactory);
     }
 
     // -------------------------------------------------------------------------------
@@ -1684,10 +1608,10 @@ public abstract class NanoHTTPD {
     /**
      * Constructs an HTTP server on given hostname and port.
      */
-    public NanoHTTPD(String hostname, int port) {
+    public NanoHTTPD(String hostname, int port, TempFileManagerFactory tempFileManagerFactory) {
         this.hostname = hostname;
         this.myPort = port;
-        setTempFileManagerFactory(new DefaultTempFileManagerFactory());
+        this.tempFileManagerFactory = tempFileManagerFactory;
         setAsyncRunner(new DefaultAsyncRunner());
     }
 
@@ -1747,7 +1671,7 @@ public abstract class NanoHTTPD {
                 int sep = e.indexOf('=');
                 String propertyName = sep >= 0 ? decodePercent(e.substring(0, sep)).trim() : decodePercent(e).trim();
                 if (!parms.containsKey(propertyName)) {
-                    parms.put(propertyName, new ArrayList<String>());
+                    parms.put(propertyName, new ArrayList<>());
                 }
                 String propertyValue = sep >= 0 ? decodePercent(e.substring(sep + 1)) : null;
                 if (propertyValue != null) {
@@ -1767,8 +1691,8 @@ public abstract class NanoHTTPD {
         String decoded = null;
         try {
             decoded = URLDecoder.decode(str, decodePercent);
-        } catch (UnsupportedEncodingException ignored) {
-            NanoHTTPD.LOG.log(Level.WARNING, "Encoding not supported, ignored", ignored);
+        } catch (UnsupportedEncodingException e) {
+            NanoHTTPD.LOG.log(Level.WARNING, "Encoding not supported, ignored", e);
         }
         return decoded;
     }
@@ -1898,14 +1822,6 @@ public abstract class NanoHTTPD {
      */
     public void setAsyncRunner(AsyncRunner asyncRunner) {
         this.asyncRunner = asyncRunner;
-    }
-
-    /**
-     * Pluggable strategy for creating and cleaning up temporary files.
-     * @param tempFileManagerFactory new strategy for handling temp files.
-     */
-    public void setTempFileManagerFactory(TempFileManagerFactory tempFileManagerFactory) {
-        this.tempFileManagerFactory = tempFileManagerFactory;
     }
 
     /**

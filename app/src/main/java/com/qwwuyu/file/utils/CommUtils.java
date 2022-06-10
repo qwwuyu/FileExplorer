@@ -148,6 +148,17 @@ public class CommUtils {
         context.startActivity(intent);
     }
 
+    /** 安装apk */
+    public static void installApk(Context context, Uri uri) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        context.startActivity(intent);
+    }
+
     /** Gzip解压 */
     public static byte[] gzipUnCompress(byte[] bt) {
         ByteArrayOutputStream byteAos = null;

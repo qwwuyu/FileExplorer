@@ -134,7 +134,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
-                android:text="电池白名单申请" />
+                android:text="电池白名单申请(不建议使用)" />
 
             <Button
                 android:id="@+id/btnRData"

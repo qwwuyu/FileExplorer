@@ -1,5 +1,8 @@
 package com.qwwuyu.file.nano
 
+import com.qwwuyu.file.BuildConfig
+import com.qwwuyu.file.WApplication
+import com.qwwuyu.file.utils.CommUtils
 import java.io.*
 
 /**
@@ -44,6 +47,10 @@ class RealFile(_file: File) : ProxyFile() {
         return (file.listFiles() ?: emptyArray()).map { RealFile(it) }.toTypedArray()
     }
 
+    override fun installApk() {
+        CommUtils.installApk(WApplication.context, file, BuildConfig.PROVIDER)
+    }
+
     override fun inputStream(): InputStream {
         return FileInputStream(file)
     }
@@ -64,5 +71,9 @@ class RealFile(_file: File) : ProxyFile() {
         val dir = File(file, name)
         val suc = dir.mkdir()
         return if (suc) RealFile(dir) else null
+    }
+
+    override fun getPath(): String {
+        return file.absolutePath
     }
 }

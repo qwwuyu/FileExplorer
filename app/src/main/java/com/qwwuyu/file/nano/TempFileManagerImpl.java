@@ -5,29 +5,32 @@ import com.qwwuyu.file.helper.FileHelper;
 import com.qwwuyu.file.utils.CommUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TempFileManagerImpl implements NanoHTTPD.TempFileManagerFactory {
     @Override
-    public NanoHTTPD.TempFileManager create() {
+    public NanoHTTPD.TempFileManager create() throws Exception {
         return new MyFileManager();
     }
 
     public static class MyFileManager implements NanoHTTPD.TempFileManager {
-        private final File dir;
-        private final List<NanoHTTPD.TempFile> tempFiles = new ArrayList<>();
+        private final File fileDir;
+        private final List<File> tempFiles = new ArrayList<>();
 
-        public MyFileManager() {
-            this.dir = new File(FileHelper.getInstance().getCachePath());
+        public MyFileManager() throws FileNotFoundException {
+            String cachePath = FileHelper.getInstance().getCachePath();
+            if (cachePath == null) throw new FileNotFoundException();
+            fileDir = new File(FileHelper.getInstance().getCachePath());
         }
 
         @Override
         public void clear() {
-            for (NanoHTTPD.TempFile file : this.tempFiles) {
+            for (File file : this.tempFiles) {
                 try {
                     file.delete();
                 } catch (Exception ignored) {
@@ -37,35 +40,45 @@ public class TempFileManagerImpl implements NanoHTTPD.TempFileManagerFactory {
         }
 
         @Override
-        public NanoHTTPD.TempFile createTempFile(File directory, String filename) throws Exception {
-            MyTempFile tempFile = new MyTempFile(directory == null ? dir : directory, filename);
-            if (filename == null) this.tempFiles.add(tempFile);
-            return tempFile;
+        public RandomAccessFile randomAccessFile() throws Exception {
+            File tempFile = File.createTempFile("FileManageTemp", "", fileDir);
+            this.tempFiles.add(tempFile);
+            return new RandomAccessFile(tempFile, "rw");
+        }
+
+        @Override
+        public NanoHTTPD.TempFile createTempFile(ProxyFile directory, String filename) throws Exception {
+            return new MyTempFile(directory, filename);
         }
     }
 
     public static class MyTempFile implements NanoHTTPD.TempFile {
-        private final File file;
+        private final ProxyFile file;
         private final OutputStream stream;
 
-        public MyTempFile(File dir, String filename) throws IOException {
-            if (filename == null) file = File.createTempFile("FileManageTemp", "", dir);
-            else file = new File(dir, filename);
-            if (filename != null && file.exists()) throw new FileExistException(file.getAbsolutePath());
-            stream = new FileOutputStream(this.file);
+        public MyTempFile(ProxyFile dir, String filename) throws IOException {
+            ProxyFile child = dir.child(filename);
+            if (child != null && child.exists()) {
+                throw new FileExistException(child.getPath());
+            }
+            file = dir.createFile(filename);
+            if (file == null) {
+                throw new IOException();
+            }
+            stream = file.outputStream();
         }
 
         @Override
         public void delete() throws Exception {
             CommUtils.closeStream(stream);
-            if (!this.file.delete()) {
+            if (!file.delete()) {
                 throw new Exception("could not delete temporary file");
             }
         }
 
         @Override
         public String getName() {
-            return this.file.getAbsolutePath();
+            return file.getPath();
         }
 
         @Override

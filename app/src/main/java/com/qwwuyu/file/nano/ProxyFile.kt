@@ -17,9 +17,11 @@ abstract class ProxyFile {
     abstract fun exists(): Boolean
     abstract fun listFiles(): Array<ProxyFile>
 
+    abstract fun installApk()
     abstract fun inputStream(): InputStream?
     abstract fun outputStream(): OutputStream?
     abstract fun createFile(name: String): ProxyFile?
     abstract fun child(name: String): ProxyFile?
     abstract fun createDirectory(name: String): ProxyFile?
+    abstract fun getPath(): String
 }

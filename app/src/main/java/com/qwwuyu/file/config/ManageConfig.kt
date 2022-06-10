@@ -11,6 +11,7 @@ class ManageConfig private constructor() {
     private var txtEncoding: String = SpUtils.getDefault().getValue(Constant.SP_TXT_ENCODING, "utf-8")
 
     companion object {
+        @JvmStatic
         val instance: ManageConfig by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
             ManageConfig()
         }
