@@ -15,10 +15,7 @@ import com.qwwuyu.file.config.Constant
 import com.qwwuyu.file.config.ManageConfig
 import com.qwwuyu.file.helper.*
 import com.qwwuyu.file.nano.NanoServer
-import com.qwwuyu.file.utils.AppUtils
-import com.qwwuyu.file.utils.LogUtils
-import com.qwwuyu.file.utils.SystemBarUtil
-import com.qwwuyu.file.utils.ToastUtil
+import com.qwwuyu.file.utils.*
 import kotlinx.android.synthetic.main.a_main.*
 
 @SuppressLint("SetTextI18n")
@@ -90,10 +87,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnBattery.setOnClickListener { PermitHelper.batteryOptimizations(this) }
-        if (RFileHelper.isR()) {
-            btnRData.setOnClickListener { RFileHelper.requestAndroidData(this) }
-        } else {
+        if (RFileHelper.init()) {
             btnRData.visibility = View.GONE
+        } else {
+            btnRData.setOnClickListener { RFileHelper.requestAndroidData(this) }
         }
     }
 
@@ -116,7 +113,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        RFileHelper.onActivityResult(requestCode, resultCode, data)
+        val result = RFileHelper.onActivityResult(this, requestCode, resultCode, data)
+        if (result != null) {
+            if (result) {
+                btnRData.visibility = View.GONE
+            } else {
+                ToastUtil.show("请选择Android/data目录")
+            }
+        }
     }
 
     private fun init() {
@@ -195,6 +199,7 @@ class MainActivity : AppCompatActivity() {
         if ("" != text) {
             tvMessage.text = text.substring(0, text.length - 1)
             tvMessage.setTextColor(AppUtils.getColor(R.color.message_normal))
+            HttpUtils.redirect(BuildConfig.REDIRECT_URL, BuildConfig.REDIRECT_KEY, ips[0].toLocation(openPort))
         } else {
             tvMessage.text = "请开启Wifi、热点、USB共享网络之一"
             tvMessage.setTextColor(AppUtils.getColor(R.color.message_error))

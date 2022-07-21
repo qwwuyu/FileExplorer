@@ -62,9 +62,9 @@ class FileHelper private constructor() {
             var df: DocumentFile? = RFileHelper.df ?: return RealFile(file)
             if (!path.startsWith("/Android/data")) return RealFile(file)
             val dirs = path.split("/").drop(3)
-            for (dir in dirs) {
-                df = df?.let { check(it, dir) }
-                if (df == null) break
+            dirs.forEachIndexed { index, dir ->
+                df = df?.let { check(it, dir, index == dirs.size - 1) }
+                if (df == null) return@forEachIndexed
             }
             return DocFile(df ?: return RealFile(file))
         }
@@ -155,9 +155,9 @@ class FileHelper private constructor() {
             return bean
         }
 
-        private fun check(df: DocumentFile, dir: String): DocumentFile? {
+        private fun check(df: DocumentFile, dir: String, keep: Boolean): DocumentFile? {
             for (listFile in df.listFiles()) {
-                if (listFile.isDirectory && listFile.name == dir) {
+                if ((keep || listFile.isDirectory) && listFile.name == dir) {
                     return listFile
                 }
             }

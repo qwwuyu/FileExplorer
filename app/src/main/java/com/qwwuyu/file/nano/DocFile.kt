@@ -78,4 +78,12 @@ class DocFile(_file: DocumentFile) : ProxyFile() {
         str = str.substring(str.lastIndexOf("%3A") + 3)
         return "/" + str.replace("%2F", "/")
     }
+
+    override fun canRead(): Boolean {
+        return file.canRead()
+    }
+
+    override fun canWrite(): Boolean {
+        return file.canWrite()
+    }
 }

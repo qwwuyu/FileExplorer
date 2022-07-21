@@ -72,9 +72,9 @@ public class NotificationUtils {
         builder.setPriority(Notification.PRIORITY_MAX);
         if (intent != null) {
             int flags;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 flags = PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_CANCEL_CURRENT;
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            } else */if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_CANCEL_CURRENT;
             } else {
                 flags = PendingIntent.FLAG_CANCEL_CURRENT;

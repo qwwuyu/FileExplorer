@@ -28,4 +28,5 @@ object Constant {
     const val SP_DIR_INFO = "SP_DIR_INFO"
     const val SP_SHOW_APK = "SP_SHOW_APK"
     const val SP_MEDIA = "SP_MEDIA"
+    const val SP_ANDROID_R_URI = "SP_ANDROID_R_URI"
 }

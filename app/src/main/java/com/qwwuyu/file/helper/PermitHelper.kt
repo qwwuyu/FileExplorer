@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
@@ -17,7 +16,12 @@ import androidx.core.content.ContextCompat
 
 object PermitHelper {
     fun checkStorage(activity: Activity, requestCode: Int): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val write = Manifest.permission.WRITE_EXTERNAL_STORAGE
+        val read = Manifest.permission.READ_EXTERNAL_STORAGE
+        if (hasSelfPermissions(activity, write, read)) return true
+        ActivityCompat.requestPermissions(activity, arrayOf(write, read), requestCode)
+        return false
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) return true
             AlertDialog.Builder(activity)
                 .setTitle("文件管理需要储存权限,请设置.")
@@ -32,12 +36,7 @@ object PermitHelper {
                 .show()
             return false
         } else {
-            val write = Manifest.permission.WRITE_EXTERNAL_STORAGE
-            val read = Manifest.permission.READ_EXTERNAL_STORAGE
-            if (hasSelfPermissions(activity, write, read)) return true
-            ActivityCompat.requestPermissions(activity, arrayOf(write, read), requestCode)
-            return false
-        }
+        }*/
     }
 
     fun checkStorageResult(activity: Activity): Boolean {

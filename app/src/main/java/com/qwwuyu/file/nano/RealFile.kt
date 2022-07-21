@@ -76,4 +76,12 @@ class RealFile(_file: File) : ProxyFile() {
     override fun getPath(): String {
         return file.absolutePath
     }
+
+    override fun canRead(): Boolean {
+        return file.canRead();
+    }
+
+    override fun canWrite(): Boolean {
+        return file.canWrite()
+    }
 }

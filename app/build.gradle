@@ -38,6 +38,8 @@ android {
             aaptOptions.cruncherEnabled = false
 
             buildConfigField "boolean", "TEST", "$configs.test"
+            buildConfigField "String", "REDIRECT_URL", "\"$configs.redirect\""
+            buildConfigField "String", "REDIRECT_KEY", "\"$configs.redirectKey\""
         }
 
         release {
@@ -48,6 +50,8 @@ android {
             proguardFiles 'proguard-rules.pro'
 
             buildConfigField "boolean", "TEST", "false"
+            buildConfigField "String", "REDIRECT_URL", "\"\""
+            buildConfigField "String", "REDIRECT_KEY", "\"\""
         }
     }
 

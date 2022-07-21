@@ -24,4 +24,6 @@ abstract class ProxyFile {
     abstract fun child(name: String): ProxyFile?
     abstract fun createDirectory(name: String): ProxyFile?
     abstract fun getPath(): String
+    abstract fun canRead(): Boolean
+    abstract fun canWrite(): Boolean
 }

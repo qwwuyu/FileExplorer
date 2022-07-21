@@ -9,6 +9,7 @@ class ManageConfig private constructor() {
     private var showApk: Boolean = SpUtils.getDefault().getValue(Constant.SP_SHOW_APK, false)
     private var isMedia: Boolean = SpUtils.getDefault().getValue(Constant.SP_MEDIA, false)
     private var txtEncoding: String = SpUtils.getDefault().getValue(Constant.SP_TXT_ENCODING, "utf-8")
+    private var androidRUri: String = SpUtils.getDefault().getValue(Constant.SP_ANDROID_R_URI, "")
 
     companion object {
         @JvmStatic
@@ -69,5 +70,14 @@ class ManageConfig private constructor() {
     fun checkTxtEncoding() {
         txtEncoding = if ("utf-8" == txtEncoding) "gbk" else "utf-8"
         SpUtils.getDefault().setValue(Constant.SP_TXT_ENCODING, txtEncoding)
+    }
+
+    fun getAndroidRUri(): String {
+        return androidRUri
+    }
+
+    fun setAndroidRData(androidRUri: String) {
+        this.androidRUri = androidRUri
+        SpUtils.getDefault().setValue(Constant.SP_ANDROID_R_URI, androidRUri)
     }
 }

@@ -33,4 +33,9 @@ public class NetBean {
         String ip = ipv4 == null ? ipv6 : ipv4;
         return type.name + "→" + "http://" + ip + ":" + port;
     }
+
+    public String toLocation(int port) {
+        String ip = ipv4 == null ? ipv6 : ipv4;
+        return "http://" + ip + ":" + port;
+    }
 }

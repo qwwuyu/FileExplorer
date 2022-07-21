@@ -37,13 +37,15 @@ ext.getPropertyByName = { key, defValue ->
 ext {
     int major = 2, minor = 0, revision = 4
     configs = [
-            compileSdkVersion: 32,
+            compileSdkVersion: 29,
             minSdkVersion    : 16,
-            targetSdkVersion : 32,
+            targetSdkVersion : 29,
             versionCode      : major * 10000 + minor * 100 + revision,
             versionName      : major + "." + minor + "." + revision,
             currentDate      : new Date().format('yyMMdd-HH'),
             test             : getPropertyByName("APP_TEST_ENABLE", "false"),
+            redirect         : getPropertyByName("REDIRECT_URL", ""),
+            redirectKey         : getPropertyByName("REDIRECT_KEY", ""),
     ]
 
     signInfo = [
