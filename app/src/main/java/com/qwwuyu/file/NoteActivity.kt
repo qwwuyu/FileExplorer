@@ -83,7 +83,7 @@ class NoteActivity : AppCompatActivity() {
 
         viewRefresh.setOnClickListener { query() }
         viewAdd.setOnClickListener { insert() }
-        viewAdd2.setOnClickListener { insert(CommUtils.getClipText()) }
+        viewAdd2.setOnClickListener { insert(CommUtils.getClipText() ?: return@setOnClickListener) }
         viewClear.setOnClickListener { clear() }
 
         val filter = IntentFilter(ACTION_REFRESH)

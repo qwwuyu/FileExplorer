@@ -267,6 +267,7 @@ public class CommUtils {
         return false;
     }
 
+    @Nullable
     public static String getClipText() {
         ClipboardManager cm = (ClipboardManager) WApplication.context.getSystemService(Context.CLIPBOARD_SERVICE);
         if (cm == null || !cm.hasPrimaryClip()) return null;
