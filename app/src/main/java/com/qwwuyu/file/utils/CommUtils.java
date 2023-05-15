@@ -2,6 +2,8 @@ package com.qwwuyu.file.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -13,6 +15,8 @@ import android.os.Environment;
 import android.os.Process;
 import android.provider.Settings;
 import android.view.inputmethod.InputMethodManager;
+
+import com.qwwuyu.file.WApplication;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -246,5 +250,32 @@ public class CommUtils {
         } else {
             return String.format(Locale.CHINA, "%.2fGB", size / 1024 / 1024 / 1024f);
         }
+    }
+
+    /**
+     * 复制文本到剪切板
+     *
+     * @param label 标签
+     * @param text  内容
+     **/
+    public static boolean setClipText(String text) {
+        ClipboardManager clipboard = (ClipboardManager) WApplication.context.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(ClipData.newPlainText("文件管理", text));
+            return true;
+        }
+        return false;
+    }
+
+    public static String getClipText() {
+        ClipboardManager cm = (ClipboardManager) WApplication.context.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (cm == null || !cm.hasPrimaryClip()) return null;
+
+        ClipData primaryClip = cm.getPrimaryClip();
+        if (primaryClip == null || primaryClip.getItemCount() <= 0) return null;
+
+        ClipData.Item item = primaryClip.getItemAt(0);
+
+        return item.getText().toString();
     }
 }

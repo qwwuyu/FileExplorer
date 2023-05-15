@@ -2,6 +2,7 @@ package com.qwwuyu.file.helper;
 
 import android.content.Context;
 import android.os.PowerManager;
+import android.provider.Settings;
 
 import com.qwwuyu.file.WApplication;
 import com.qwwuyu.file.utils.LogUtils;

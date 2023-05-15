@@ -98,7 +98,7 @@ class FileHelper private constructor() {
         @JvmStatic
         fun delFile(file: ProxyFile?): ResponseBean {
             val bean = ResponseBean()
-            if (file == null || !file.exists()) {
+            if (file == null || !file.isFile()) {
                 bean.state = Constant.HTTP_ERR
                 bean.info = "文件不存在"
             } else if (file.delete()) {

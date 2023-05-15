@@ -15,6 +15,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpUtils {
+    /**
+     * 上传地址到互联网,通过服务器配置302跳转,避免ip变动,需要每次手动输入.
+     * 正式包暂不包括这个功能
+     */
     public static void redirect(String url, String key, String location) {
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(key)) return;
         new Thread(() -> {
@@ -29,7 +33,7 @@ public class HttpUtils {
         }).start();
     }
 
-    /** post方法 */
+    /** body内容提交 */
     public static String post(String url, String body) throws Exception {
         URL postUrl = new URL(url);
         // 打开连接
@@ -56,7 +60,7 @@ public class HttpUtils {
         return result;
     }
 
-    /** 上传文件 */
+    /** 表单提交 */
     public static String upload(String url, Map<String, String> params, String[] names, File[] files) throws Exception {
         final String enter = "\r\n";
         final String boundary = "----WebKitFormBoundaryQJDb3vvO3mUQrAVh";

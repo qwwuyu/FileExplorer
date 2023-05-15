@@ -56,6 +56,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.a_main)
+        SystemBarUtil.setStatusBarColor(this, AppUtils.getColor(R.color.white))
+        SystemBarUtil.setStatusBarDarkMode(this, true)
+
         cbShowPoint.isChecked = ManageConfig.instance.isShowPointFile()
         cbShowPoint.setOnCheckedChangeListener { _, isChecked -> ManageConfig.instance.setShowPointFile(isChecked) }
         cbAutoWifi.isChecked = ManageConfig.instance.isAutoWifi()
@@ -70,27 +73,20 @@ class MainActivity : AppCompatActivity() {
             checkMedia()
         }
 
+        btnNote.setOnClickListener { startActivity(Intent(this, NoteActivity::class.java)) }
+        btnSetting.setOnClickListener { startActivity(Intent(this, SettingActivity::class.java)) }
+
         tvVersion.text = "v${BuildConfig.VERSION_NAME}"
-        tvEncoding.text = "txt预览编码方式：" + ManageConfig.instance.getTxtEncoding()
-        btnEncoding.setOnClickListener {
-            ManageConfig.instance.checkTxtEncoding()
-            tvEncoding.text = "txt预览编码方式：" + ManageConfig.instance.getTxtEncoding()
+
+        btnCtrl.setOnClickListener {
+            requestStorage()
         }
+        requestStorage()
+    }
 
-        SystemBarUtil.setStatusBarColor(this, AppUtils.getColor(R.color.white))
-        SystemBarUtil.setStatusBarDarkMode(this, true)
-
+    private fun requestStorage() {
         if (PermitHelper.checkStorage(this, CODE_STORAGE)) {
             init()
-        } else {
-            ToastUtil.show("获取储存权限失败")
-        }
-
-        btnBattery.setOnClickListener { PermitHelper.batteryOptimizations(this) }
-        if (RFileHelper.init()) {
-            btnRData.visibility = View.GONE
-        } else {
-            btnRData.setOnClickListener { RFileHelper.requestAndroidData(this) }
         }
     }
 
@@ -107,18 +103,6 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == CODE_STORAGE) {
             if (PermitHelper.checkStorageResult(this)) {
                 init()
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        val result = RFileHelper.onActivityResult(this, requestCode, resultCode, data)
-        if (result != null) {
-            if (result) {
-                btnRData.visibility = View.GONE
-            } else {
-                ToastUtil.show("请选择Android/data目录")
             }
         }
     }

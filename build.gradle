@@ -4,6 +4,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://maven.aliyun.com/repository/public" }
     }
 
     dependencies {
@@ -35,9 +36,9 @@ ext.getPropertyByName = { key, defValue ->
     return value != null ? value : defValue
 }
 ext {
-    int major = 2, minor = 0, revision = 4
+    int major = 2, minor = 1, revision = 0
     configs = [
-            compileSdkVersion: 29,
+            compileSdkVersion: 31,
             minSdkVersion    : 16,
             targetSdkVersion : 29,
             versionCode      : major * 10000 + minor * 100 + revision,
@@ -45,7 +46,7 @@ ext {
             currentDate      : new Date().format('yyMMdd-HH'),
             test             : getPropertyByName("APP_TEST_ENABLE", "false"),
             redirect         : getPropertyByName("REDIRECT_URL", ""),
-            redirectKey         : getPropertyByName("REDIRECT_KEY", ""),
+            redirectKey      : getPropertyByName("REDIRECT_KEY", ""),
     ]
 
     signInfo = [
@@ -56,10 +57,4 @@ ext {
     ]
     signInfo.isSign = signInfo.storeFile != null && signInfo.keyAlias != null
 
-    versions = [
-            junit           : "junit:junit:4.12",
-            appcompat       : "androidx.appcompat:appcompat:1.1.0",
-            annotation      : "androidx.annotation:annotation:1.1.0",
-            constraintlayout: "androidx.constraintlayout:constraintlayout:1.1.3",
-    ]
 }

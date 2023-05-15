@@ -18,8 +18,16 @@ object Constant {
     const val URL_DOWNLOAD = "/i/download"
     const val URL_OPEN = "/i/open"
     const val URL_APK = "/i/apk"
-    const val UPL_UPLOAD = "/i/upload"
-    const val UPL_CREATE_DIR = "/i/createDir"
+    const val URL_UPLOAD = "/i/upload"
+    const val URL_CREATE_DIR = "/i/createDir"
+
+    const val URL_NOTE_QUERY = "/i/note/query"
+    const val URL_NOTE_ADD = "/i/note/add"
+    const val URL_NOTE_DEL = "/i/note/del"
+    const val URL_NOTE_EDIT = "/i/note/edit"
+    const val URL_NOTE_CLEAR = "/i/note/clear"
+    const val URL_NOTE_COPY2PHONE = "/i/note/copy2phone"
+    const val URL_NOTE_COPY2WEB = "/i/note/copy2web"
 
     /* ======================== SP ======================== */
     const val SP_SHOW_POINT_FILE = "SP_SHOW_POINT_FILE"

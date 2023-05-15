@@ -39,6 +39,16 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
+        <activity
+            android:name=".NoteActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".SettingActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${provider}"
@@ -52,9 +62,5 @@
         <service
             android:name=".helper.KeepServer"
             android:exported="false" />
-
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_launcher" />
     </application>
 </manifest>

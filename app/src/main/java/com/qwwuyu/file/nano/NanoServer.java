@@ -1,15 +1,19 @@
 package com.qwwuyu.file.nano;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.qwwuyu.file.config.Constant;
 import com.qwwuyu.file.config.ManageConfig;
+import com.qwwuyu.file.database.NoteInfo;
 import com.qwwuyu.file.entity.FileBean;
 import com.qwwuyu.file.entity.FileResultEntity;
 import com.qwwuyu.file.entity.ResponseBean;
 import com.qwwuyu.file.helper.FileHelper;
 import com.qwwuyu.file.helper.GsonHelper;
+import com.qwwuyu.file.helper.NoteHelper;
 import com.qwwuyu.file.utils.AppUtils;
+import com.qwwuyu.file.utils.CommUtils;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -37,37 +41,101 @@ public class NanoServer extends NanoHTTPD {
                 if (!path.startsWith("/")) path = "/" + path;
                 ProxyFile file = FileHelper.getFile(path);
                 switch (uri) {
-                    case Constant.URL_QUERY:
+                    case Constant.URL_QUERY: {
                         List<FileBean> list = FileHelper.getDirectoryFile(file);
                         ResponseBean responseBean = AppUtils.getSuccessBean().setData(list);
                         return callback(session, GsonHelper.toJson(responseBean));
-                    case Constant.URL_DEL:
+                    }
+                    case Constant.URL_DEL: {
                         return callback(session, GsonHelper.toJson(FileHelper.delFile(file)));
-                    case Constant.URL_APK:
+                    }
+                    case Constant.URL_APK: {
                         file.installApk();
                         return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
-                    case Constant.URL_DEL_DIR:
+                    }
+                    case Constant.URL_DEL_DIR: {
                         return callback(session, GsonHelper.toJson(FileHelper.delDir(file)));
-                    case Constant.URL_DOWNLOAD:
+                    }
+                    case Constant.URL_DOWNLOAD: {
                         return download(file, true);
-                    case Constant.URL_OPEN:
+                    }
+                    case Constant.URL_OPEN: {
                         return download(file, false);
-                    case Constant.UPL_UPLOAD:
+                    }
+                    case Constant.URL_UPLOAD: {
                         FileResultEntity entity = new FileResultEntity();
                         session.parseBody(entity, file);
-                        return txt(GsonHelper.toJson(entity));
-                    case Constant.UPL_CREATE_DIR:
+                        String txt = GsonHelper.toJson(entity);
+                        if (entity.successFile != null && entity.successFile.size() > 0) {
+                            return newFixedLengthResponse(Response.Status.OK, "application/json", txt);
+                        } else if (entity.existFile != null && entity.existFile.size() > 0) {
+                            return newFixedLengthResponse(Response.Status.CONFLICT, "application/json", txt);
+                        } else {
+                            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "application/json", txt);
+                        }
+                    }
+                    case Constant.URL_CREATE_DIR: {
                         String dirName = session.getParms().get("dirName");
                         try {
                             dirName = URLDecoder.decode(dirName, "UTF-8");
                         } catch (Exception ignored) {
                         }
                         return callback(session, GsonHelper.toJson(FileHelper.createDir(file, dirName)));
+                    }
+                    case Constant.URL_NOTE_QUERY: {
+                        ResponseBean bean = AppUtils.getSuccessBean().setData(NoteHelper.queryAll());
+                        return callback(session, GsonHelper.toJson(bean));
+                    }
+                    case Constant.URL_NOTE_ADD: {
+                        String text = session.getParms().get("text");
+                        if (text == null || text.length() == 0) {
+                            return callback(session, GsonHelper.toJson(AppUtils.getErrorBean()));
+                        } else {
+                            NoteHelper.insert(new NoteInfo(0, System.currentTimeMillis(), text));
+                            return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
+                        }
+                    }
+                    case Constant.URL_NOTE_DEL: {
+                        String id = session.getParms().get("id");
+                        if (id == null) {
+                            return callback(session, GsonHelper.toJson(AppUtils.getErrorBean()));
+                        }
+                        NoteHelper.delete(new NoteInfo(Long.parseLong(id), 0, ""));
+                        return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
+                    }
+                    case Constant.URL_NOTE_EDIT: {
+                        String id = session.getParms().get("id");
+                        String text = session.getParms().get("text");
+                        if (id == null || text == null || text.length() == 0) {
+                            return callback(session, GsonHelper.toJson(AppUtils.getErrorBean()));
+                        }
+                        NoteHelper.update(new NoteInfo(Long.parseLong(id), System.currentTimeMillis(), text));
+                        return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
+                    }
+                    case Constant.URL_NOTE_CLEAR: {
+                        NoteHelper.clear();
+                        return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
+                    }
+                    case Constant.URL_NOTE_COPY2PHONE: {
+                        String text = session.getParms().get("text");
+                        if (!TextUtils.isEmpty(text)) {
+                            CommUtils.setClipText(text);
+                        }
+                        return callback(session, GsonHelper.toJson(AppUtils.getSuccessBean()));
+                    }
+                    case Constant.URL_NOTE_COPY2WEB: {
+                        String text = CommUtils.getClipText();
+                        if (!TextUtils.isEmpty(text)) {
+                            ResponseBean bean = AppUtils.getSuccessBean().setData(text);
+                            return callback(session, GsonHelper.toJson(bean));
+                        }
+                        return callback(session, GsonHelper.toJson(AppUtils.getErrorBean().setInfo("剪切板没有数据或应用不在前台")));
+                    }
                 }
             }
 
             try {
-                InputStream is = context.getAssets().open("manage" + uri);
+                InputStream is = context.getAssets().open("build" + uri);
                 String mimeType = "text/plain";
                 for (int i = 0; i < url.length; i++) {
                     if (uri.endsWith(url[i])) mimeType = types[i];
@@ -91,7 +159,7 @@ public class NanoServer extends NanoHTTPD {
     }
 
     private Response html(String body) {
-        return newFixedLengthResponse(Response.Status.OK, NanoHTTPD.MIME_HTML, "<html><body><h1>" + body + "</h1></body></html>");
+        return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_HTML, "<html><body><h1>" + body + "</h1></body></html>");
     }
 
     private Response download(ProxyFile file, boolean download) throws Exception {

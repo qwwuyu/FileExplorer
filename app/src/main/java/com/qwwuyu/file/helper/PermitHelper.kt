@@ -51,7 +51,7 @@ object PermitHelper {
                 openSetting(activity, true)
                 activity.finish()
             }
-            .setNegativeButton("取消") { _, _ -> activity.finish() }
+            .setNegativeButton("取消") { _, _ ->  }
             .show()
         return false
     }
